@@ -12,7 +12,8 @@
          6. Orders
          7. ProductCategories
          8. Products
-         9. Для каждого создать CrudRepository
+         9. Role
+         10. Для каждого создать CrudRepository
       2. Реализовать контроллеры
          1. Basket
             1. save
@@ -50,6 +51,17 @@
 
 # Выполненные задачи
 ## Данияр
+      1. Создать сущности JPA
+         1. Clients
+         2. Employees
+         3. GameZones
+         4. Guest
+         5. GuestCart
+         6. Orders
+         7. ProductCategories
+         8. Products
+         9. Role
+         10. Для каждого создать CrudRepository
     -
 ## Николай
     -
