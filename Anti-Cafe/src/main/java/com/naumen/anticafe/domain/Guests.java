@@ -4,16 +4,21 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+import java.sql.Date;
 @Data
 @Entity
 @NoArgsConstructor
-public class GuestCart {
+public class Guests {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    private Guests guests;
+    private Orders orders;
+    private String name;
     @ManyToOne
-    private Products products;
-    private int quantity;
+    private Clients clients;
+    private Date timeBegin;
+    private Date timeEnd;
+    private int total;
 }
