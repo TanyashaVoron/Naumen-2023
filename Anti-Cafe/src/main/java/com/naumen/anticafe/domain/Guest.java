@@ -4,24 +4,23 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
 
+import java.sql.Date;
 @Data
 @Entity
 @NoArgsConstructor
-public class Orders {
+@Table(name = "guests")
+public class Guest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    private GameZones gameZone;
-
+    @JoinColumn(name = "ordr")
+    private Order order;
+    private String name;
+    @ManyToOne
+    private Client client;
     private Date timeBegin;
     private Date timeEnd;
-    @ManyToOne
-    private Employees manager;
-    private Boolean payment;
-    private Date date;
-    private int tariff;
     private int total;
 }

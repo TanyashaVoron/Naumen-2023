@@ -13,7 +13,8 @@ import java.util.Set;
 @Data
 @Entity
 @NoArgsConstructor
-public class Employees implements UserDetails {
+@Table(name = "employees")
+public class Employee implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

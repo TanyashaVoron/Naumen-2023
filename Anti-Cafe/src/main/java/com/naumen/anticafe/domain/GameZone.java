@@ -1,16 +1,14 @@
 package com.naumen.anticafe.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @NoArgsConstructor
-public class ProductCategories {
+@Table(name = "game_zone")
+public class GameZone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
