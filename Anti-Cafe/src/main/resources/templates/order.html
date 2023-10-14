@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+<a th:if="${manager!=null}" th:text="${manager.getName()}">user</a>
+<a th:if="${not gameZone.isEmpty()}" th:text="${gameZone.get().getName()}">user</a>
+<a th:if="${gameZone.isEmpty()}">---</a>
+<hr>
+Гости
+<div th:each="guest : ${guests}">
+    <a th:text="${guest.getId() + ', ' +guest.getName() + ', ' }">user</a>
+</div>
+<hr>
+Продукты
+<div th:each="product : ${products}">
+    <a th:text="${product.getId() + ', ' +product.getProduct().getName() + ', '+ product.getQuantity() + ', ' + product.getGuest().getName() + ', '}">user</a>
+</div>
+<a th:text="${total}">user</a>
+<br/>
+</body>
+</html>

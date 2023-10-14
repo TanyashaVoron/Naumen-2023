@@ -5,15 +5,14 @@
     <title>Index</title>
 </head>
 <body>
-
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
 <div th:each="order : ${orders}">
     <a th:text="${order.getId() + ', ' +order.getGameZone().getId() + ', ' }">user</a>
 </div>
-
+<form th:method="POST" th:action="@{/order/create}">
+    <input type="submit" value="Update!"/>
+</form>
 <br/>
 <hr/>
-
-<a href="/people/new">Create new person</a>
-
 </body>
 </html>

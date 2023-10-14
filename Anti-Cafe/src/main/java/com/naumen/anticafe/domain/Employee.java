@@ -18,9 +18,10 @@ public class Employee implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
     private String password;
     private String username;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> role;
     private boolean accountNonExpired;
     private boolean accountNonLocked;
