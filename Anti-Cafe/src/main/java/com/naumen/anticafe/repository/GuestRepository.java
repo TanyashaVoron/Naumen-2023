@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface GuestRepository  extends CrudRepository<Guest, Long> {
     List<Guest> findAllByOrder(Order order);
+    long countByOrder(Order order);
 }

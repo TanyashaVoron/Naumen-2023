@@ -5,15 +5,20 @@
     <title>Index</title>
 </head>
 <body>
+<a th:href="@{/search}">Назад</a>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-<a th:if="${manager!=null}" th:text="${manager.getName()}">user</a>
-<a th:if="${not gameZone.isEmpty()}" th:text="${gameZone.get().getName()}">user</a>
-<a th:if="${gameZone.isEmpty()}">---</a>
+<a th:if="${manager.isPresent()}" th:text="${manager.get.getName()}">user</a>
+<a th:if="${gameZone.isPresent()}" th:text="${gameZone.get().getName()}">user</a>
+<a th:if="${gameZone.isEmpty}">---</a>
 <hr>
 Гости
 <div th:each="guest : ${guests}">
-    <a th:text="${guest.getId() + ', ' +guest.getName() + ', ' }">user</a>
+    <a th:text="${guest.getId() + ', ' + ', ' }">user</a>
+    <a th:href="@{/guest/{id}(id=${guest.getId()})}" th:text="${guest.getName()}"></a>
 </div>
+<form th:method="POST" th:action="@{/order/{id}/add_guest(id=${order.getId()})}">
+    <input type="submit" value="Создать"/>
+</form>
 <hr>
 Продукты
 <div th:each="product : ${products}">

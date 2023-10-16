@@ -7,7 +7,9 @@
 <body>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
 <div th:each="order : ${orders}">
-    <a th:text="${order.getId() + ', ' +order.getGameZone().getId() + ', ' }">user</a>
+    <a th:text="${order.getId() + ', '}">user</a>
+    <a th:if="${order.getGameZone()!=null}" th:text="${order.getGameZone().getId()+' '}">user</a>
+    <a th:href="@{/order/{id}(id=${order.getId()})}">-><a/>
 </div>
 <form th:method="POST" th:action="@{/order/create}">
     <input type="submit" value="Update!"/>

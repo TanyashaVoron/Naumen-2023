@@ -16,10 +16,12 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){
+        //Шифровальщик пароля
         return new BCryptPasswordEncoder();
     }
     @Bean
     public UserDetailsService userDetailsService(EmployeeRepository employeeRepository){
+        //поиск сотрудника в бд если его не находит, выдает ошибку
         return username -> {
             Employee employee = employeeRepository.findByUsername(username);
             if(employee!=null) return employee;
@@ -28,6 +30,7 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        //контроль доступа пользователям(на текущий момент все открыто)
         httpSecurity.authorizeHttpRequests(request -> request.anyRequest().permitAll()).formLogin().loginPage("/login");
         return httpSecurity.build();
     }
