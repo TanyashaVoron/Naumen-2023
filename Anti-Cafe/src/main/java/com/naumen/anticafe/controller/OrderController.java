@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Year;
@@ -36,99 +35,136 @@ public class OrderController {
 
     @GetMapping("/{id}/reserve")
     public String reserveShow(@PathVariable("id") Long orderId,
-                              @RequestParam(value = "gameZoneId",required = false) Long gameZoneId,
-                              @RequestParam(value = "day",required = false) String day,
-                              Model model){
+                              @RequestParam(value = "gameZoneId", required = false) Long gameZoneId,
+                              @RequestParam(value = "dayMonth", required = false) String dayMonth,
+                              Model model) {
+        //создает лист игровых зон
         List<GameZone> gameZoneList = new ArrayList<>(gameZoneRepository.findAll());
+        //создает список дней для резервов
         List<String> dayOfReserve = new ArrayList<>();
+        //создаем переменную текущего дня для заполнения
         LocalDate dateNow = LocalDate.now();
+        //вносим в лист все последующее 7 дней
         for (int i = 0; i < 7; i++) {
             dateNow = dateNow.plusDays(1);
-            dayOfReserve.add(dateNow.getDayOfMonth()+"."+dateNow.getMonthValue());
+            dayOfReserve.add(dateNow.getDayOfMonth() + "." + dateNow.getMonthValue());
         }
-        if(day!=null&&gameZoneId!=null){
+        //проверяем передачу дня и игровой зоны
+        if (dayMonth != null && gameZoneId != null) {
+            //находим игровую зону
             Optional<GameZone> optionalGameZone = gameZoneRepository.findById(gameZoneId);
-            String[] dayAndMonth = day.split("\\.");
-            LocalDate localDate = LocalDate.of(
-                    Year.now().getValue(),
-                    Integer.parseInt(dayAndMonth[1]),
-                    Integer.parseInt(dayAndMonth[0])
-            );
-            if(optionalGameZone.isPresent()) {
+            //проверяем найдена ли игровая зона
+            if (optionalGameZone.isPresent()) {
+                //разделяем день и месяц
+                String[] dayAndMonth = dayMonth.split("\\.");
+                //создаем переменную даты и дня
+                LocalDate localDate = LocalDate.of(
+                        Year.now().getValue(),
+                        Integer.parseInt(dayAndMonth[1]),
+                        Integer.parseInt(dayAndMonth[0])
+                );
+                //получаем игровую зону
                 GameZone gameZone = optionalGameZone.get();
-                List<Integer> time = new ArrayList<>();
-                for (int i = 10; i < 24; i++) {
-                    time.add(i);
+                //Все временные промежутки для резервирования
+                List<Integer> allTimeReserve = new ArrayList<>();
+                //с какого часа начать инициализацию
+                int startInitTimeReserve = 10;
+                //в случае если выбирается резерв текущего дня отсекаются прошедшие часы
+                if(localDate.getDayOfYear()==LocalDate.now().getDayOfYear()){
+                    startInitTimeReserve =LocalTime.now().getHour()+1;
                 }
-                List<Order> orderList = new ArrayList<>(orderRepository.findAllByGameZoneAndReserveDateOrderByReserveDate(gameZone,localDate));
-                for(Order o :orderList){
-                    LocalTime start = o.getReserveTime();
-                    LocalTime end = o.getEndReserve();
-                    while (!start.equals(end)){
-                        time.remove((Object)start.getHour());
-                        start=start.plusHours(1);
+                //инициализация
+                for (int i = startInitTimeReserve; i < 24; i++) {
+                    allTimeReserve.add(i);
+                }
+                //Получаем лист заказов в которых есть резерв и он на требуемую дату
+                List<Order> orderList = new ArrayList<>(orderRepository.findAllByGameZoneAndReserveDateOrderByReserveDate(gameZone, localDate));
+                //Перебирает каждый найденный заказ
+                for (Order o : orderList) {
+                    //получает начальный час резерва
+                    int start = o.getReserveTime().getHour();
+                    //получает конечный час резерва
+                    int end = o.getEndReserve().getHour();
+                    //удаляет из allTimeReserve зарезервированные часы от start до end
+                    for (int i = start; i <= end ; i++) {
+                        allTimeReserve.remove((Object)i);
                     }
-                    time.remove((Object)end.getHour());
                 }
-                Integer[][] freeTime = new Integer[time.size()][2];
-                for (int i = 0; i < time.size(); i++) {
-                    freeTime[i][0]=time.get(i);
+                //объявляет массив первое число час второе сколько можно зарезервировать от него
+                Integer[][] availableReserve = new Integer[allTimeReserve.size()][2];
+                //передает в массив все доступные резервы
+                for (int i = 0; i < allTimeReserve.size(); i++) {
+                    availableReserve[i][0] = allTimeReserve.get(i);
                 }
-                int left = 0;
-                for (int i = 0; i < freeTime.length; i++) {
-                    if(i==freeTime.length-1){
-                        freeTime[i][1]=24-freeTime[i][0];
-                        int t = 1;
-                        for (int j = i; j >= left; j--) {
-                            freeTime[j][1] = t++;
-                        }
+                //указывает на возможные часы резерва
+                for (int i = availableReserve.length-1; i >=0; i--) {
+                    if(availableReserve.length-1==i){
+                        availableReserve[i][1]=24-availableReserve[i][0];
                     }else {
-                        if (freeTime[i][0]!=(freeTime[i + 1][0] - 1)){
-                            int t = 1;
-                            for (int j = i; j >= left; j--) {
-                                freeTime[j][1] = t++;
-                            }
-                            left = i + 1;
+                        if(availableReserve[i][0]==availableReserve[i+1][0]-1){
+                            availableReserve[i][1]=1+availableReserve[i+1][1];
+                        }else{
+                            availableReserve[i][1]=1;
                         }
                     }
-
                 }
-                model.addAttribute("gameZoneId",gameZoneId);
-                model.addAttribute("day",day);
-                model.addAttribute("freeTimes",freeTime);
+                model.addAttribute("gameZoneId", gameZoneId);
+                model.addAttribute("dayMonth", dayMonth);
+                model.addAttribute("freeTimes", availableReserve);
+            }else {
+                return "redirect:/" + orderId + "/reserve";
             }
         }
-        model.addAttribute("orderId",orderId);
-        model.addAttribute("gameZones",gameZoneList);
-        model.addAttribute("dayOfReserve",dayOfReserve);
+        model.addAttribute("orderId", orderId);
+        model.addAttribute("gameZones", gameZoneList);
+        model.addAttribute("dayOfReserve", dayOfReserve);
         return "reserve";
     }
+
     @GetMapping("/{id}/reserve/Add/{day}/{gameZoneId}/{freeTime}/{maxHour}")
-    public String addReserve(@PathVariable("id")Long orderId,
-                             @PathVariable("day")String dayOfMount,
-                             @PathVariable("gameZoneId")Long gameZoneId,
-                             @PathVariable("freeTime")int freeTime,
+    public String addReserve(@PathVariable("id") Long orderId,
+                             @PathVariable("day") String dayOfMount,
+                             @PathVariable("gameZoneId") Long gameZoneId,
+                             @PathVariable("freeTime") int freeTime,
                              @PathVariable("maxHour") int maxHour,
-                             @ModelAttribute(value = "hour") int hour){
-        if(maxHour<hour||hour<=0){
-            return "redirect:/order/"+orderId+"/reserve?gameZoneId="+gameZoneId+"&day="+dayOfMount;
+                             @ModelAttribute(value = "hour") int hour) {
+        //проверяем корректность переданных часов
+        if (maxHour < hour || hour <= 0) {
+            return "redirect:/order/" + orderId + "/reserve?gameZoneId=" + gameZoneId + "&day=" + dayOfMount;
         }
-        Order order = orderRepository.findById(orderId).get();
-        GameZone gameZone = gameZoneRepository.findById(gameZoneId).get();
+        //находим заказ
+        Optional<Order> optionalOrder= orderRepository.findById(orderId);
+        //проверяем заказ на null
+        if(optionalOrder.isEmpty()) return "redirect:/orderNotFound";
+        //передает в переменную заказ
+        Order order = optionalOrder.get();
+        //находим гейм зону
+        Optional<GameZone> optionalGameZone = gameZoneRepository.findById(gameZoneId);
+        //проверяем зону на null
+        if(optionalGameZone.isEmpty()) return "redirect:/gameZoneNotFound";
+        //передаем в переменную игровую зону
+        GameZone gameZone = optionalGameZone.get();
+        //создаем переменную даты
         LocalDate localDate;
+        //разделяем на дату и месяц
         int day = Integer.parseInt(dayOfMount.split("\\.")[0]);
         int mount = Integer.parseInt(dayOfMount.split("\\.")[1]);
-        if(day<7&&mount==1) localDate = LocalDate.of(Year.now().getValue()+1,mount,day);
-        else localDate = LocalDate.of(Year.now().getValue(),mount,day);
-        LocalTime localTimeStart = LocalTime.of(freeTime,0);
-        LocalTime localTimeEnd = LocalTime.of(freeTime+hour,0);
+        //проверяем является ли заказ на след год если да ставит новый год
+        if (day < 7 && mount == 1&&LocalDate.now().getDayOfMonth()>20) localDate = LocalDate.of(Year.now().getValue() + 1, mount, day);
+        else localDate = LocalDate.of(Year.now().getValue(), mount, day);
+        //получает начало резерва
+        LocalTime localTimeStart = LocalTime.of(freeTime, 0);
+        //получает конец резерва
+        LocalTime localTimeEnd = LocalTime.of(freeTime + hour, 0);
+        //передача всех данных
         order.setGameZone(gameZone);
         order.setReserveDate(localDate);
         order.setReserveTime(localTimeStart);
         order.setEndReserve(localTimeEnd);
         orderRepository.save(order);
-        return "redirect:/order/"+orderId;
+        return "redirect:/order/" + orderId;
     }
+
     @GetMapping("/{id}")
     public String orderShow(@PathVariable("id") Long id,
                             Model model) {
