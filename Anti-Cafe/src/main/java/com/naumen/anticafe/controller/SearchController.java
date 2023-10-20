@@ -29,8 +29,8 @@ public class SearchController {
 
     @GetMapping()
     public String searchShow(Model model,
-                             @RequestParam(value = "order",required = false) Long order,
-                             @RequestParam(value = "gamezone", required = false) Long gameZone){
+                             @RequestParam(value = "orderId",required = false) Long order,
+                             @RequestParam(value = "gameZoneId", required = false) Long gameZone){
         //создание пустого списка
         List<Order> orders = new ArrayList<>();
         //проверка на пустые параметры и поиск без параметров

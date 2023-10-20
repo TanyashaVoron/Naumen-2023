@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Data
 @Entity
@@ -16,13 +19,13 @@ public class Order {
     private Long id;
     @ManyToOne
     private GameZone gameZone;
-
-    private Date timeBegin;
-    private Date timeEnd;
+    private LocalDate reserveDate;
+    private LocalTime reserveTime;
+    private LocalTime endReserve;
     @ManyToOne
     private Employee manager;
     private Boolean payment;
-    private Date date;
+    private LocalDate date;
     private int tariff;
     private int total;
 }

@@ -5,14 +5,22 @@
     <title>Index</title>
 </head>
 <body>
+<form th:method="GET" th:action="@{/}"><button type="submit">Главная страница</button> </form>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+<form th:method="GET" th:action="@{/search}">
+    <label for="orderId">Введите номер заказа</label>
+    <input type="text"  th:name="orderId" id="orderId" placeholder="Номер заказа">
+    <label for="gameZoneId">Введите игровую зону</label>
+    <input type="text" th:name="gameZoneId" id="gameZoneId" placeholder="Номер зоны">
+    <input type="submit" value="Добавить!"/>
+</form>
 <div th:each="order : ${orders}">
     <a th:text="${order.getId() + ', '}">user</a>
     <a th:if="${order.getGameZone()!=null}" th:text="${order.getGameZone().getId()+' '}">user</a>
     <a th:href="@{/order/{id}(id=${order.getId()})}">-><a/>
 </div>
 <form th:method="POST" th:action="@{/order/create}">
-    <input type="submit" value="Update!"/>
+    <input type="submit" value="Добавить!"/>
 </form>
 <br/>
 <hr/>
