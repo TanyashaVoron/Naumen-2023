@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Менеджер</title>
@@ -8,7 +8,7 @@
 <form th:if="${user.isEmpty()}" th:method="GET" th:action="@{/login}"><button type="submit">Войти</button> </form>
 <form th:if="${user.isPresent()}" th:method="GET" th:action="@{/login}"><button type="submit">Выйти</button> </form>
 <form th:method="GET" th:action="@{/report}"><button type="submit">Отчет</button> </form>
-<form th:method="GET" th:action="@{/adding}"><button type="submit">Добавить пользователя</button> </form>
+<form th:method="GET" th:action="@{/addEmployee}"><button type="submit">Добавить пользователя</button> </form>
 <form th:method="GET" th:action="@{/product}"><button type="submit">Товары</button> </form>
 <form th:method="GET" th:action="@{/gamezone}"><button type="submit">Игровые зоны</button> </form>
 <form th:method="POST" th:action="@{/order/create}"><button type="submit">Создать заказ</button> </form>

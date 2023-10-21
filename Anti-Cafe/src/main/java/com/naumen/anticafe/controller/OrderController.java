@@ -13,15 +13,17 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Year;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/order")
 public class OrderController {
-    private OrderRepository orderRepository;
-    private GuestRepository guestRepository;
-    private GuestCartRepository guestCartRepository;
-    private GameZoneRepository gameZoneRepository;
+    private final OrderRepository orderRepository;
+    private final GuestRepository guestRepository;
+    private final GuestCartRepository guestCartRepository;
+    private final GameZoneRepository gameZoneRepository;
 
     public OrderController(OrderRepository orderRepository,
                            GuestRepository guestRepository,
@@ -37,6 +39,7 @@ public class OrderController {
     public String reserveShow(@PathVariable("id") Long orderId,
                               @RequestParam(value = "gameZoneId", required = false) Long gameZoneId,
                               @RequestParam(value = "dayMonth", required = false) String dayMonth,
+                              @AuthenticationPrincipal Employee employee,
                               Model model) {
         //создает лист игровых зон
         List<GameZone> gameZoneList = new ArrayList<>(gameZoneRepository.findAll());
@@ -70,8 +73,8 @@ public class OrderController {
                 //с какого часа начать инициализацию
                 int startInitTimeReserve = 10;
                 //в случае если выбирается резерв текущего дня отсекаются прошедшие часы
-                if(localDate.getDayOfYear()==LocalDate.now().getDayOfYear()){
-                    startInitTimeReserve =LocalTime.now().getHour()+1;
+                if (localDate.getDayOfYear() == LocalDate.now().getDayOfYear()) {
+                    startInitTimeReserve = LocalTime.now().getHour() + 1;
                 }
                 //инициализация
                 for (int i = startInitTimeReserve; i < 24; i++) {
@@ -86,8 +89,8 @@ public class OrderController {
                     //получает конечный час резерва
                     int end = o.getEndReserve().getHour();
                     //удаляет из allTimeReserve зарезервированные часы от start до end
-                    for (int i = start; i <= end ; i++) {
-                        allTimeReserve.remove((Object)i);
+                    for (int i = start; i <= end; i++) {
+                        allTimeReserve.remove((Object) i);
                     }
                 }
                 //объявляет массив первое число час второе сколько можно зарезервировать от него
@@ -97,24 +100,26 @@ public class OrderController {
                     availableReserve[i][0] = allTimeReserve.get(i);
                 }
                 //указывает на возможные часы резерва
-                for (int i = availableReserve.length-1; i >=0; i--) {
-                    if(availableReserve.length-1==i){
-                        availableReserve[i][1]=24-availableReserve[i][0];
-                    }else {
-                        if(availableReserve[i][0]==availableReserve[i+1][0]-1){
-                            availableReserve[i][1]=1+availableReserve[i+1][1];
-                        }else{
-                            availableReserve[i][1]=1;
+                for (int i = availableReserve.length - 1; i >= 0; i--) {
+                    if (availableReserve.length - 1 == i) {
+                        availableReserve[i][1] = 24 - availableReserve[i][0];
+                    } else {
+                        if (availableReserve[i][0] == availableReserve[i + 1][0] - 1) {
+                            availableReserve[i][1] = 1 + availableReserve[i + 1][1];
+                        } else {
+                            availableReserve[i][1] = 1;
                         }
                     }
                 }
                 model.addAttribute("gameZoneId", gameZoneId);
                 model.addAttribute("dayMonth", dayMonth);
                 model.addAttribute("freeTimes", availableReserve);
-            }else {
+            } else {
                 return "redirect:/" + orderId + "/reserve";
             }
         }
+        Optional<Employee> optionalEmployee = Optional.ofNullable(employee);
+        model.addAttribute("user", optionalEmployee);
         model.addAttribute("orderId", orderId);
         model.addAttribute("gameZones", gameZoneList);
         model.addAttribute("dayOfReserve", dayOfReserve);
@@ -133,15 +138,15 @@ public class OrderController {
             return "redirect:/order/" + orderId + "/reserve?gameZoneId=" + gameZoneId + "&day=" + dayOfMount;
         }
         //находим заказ
-        Optional<Order> optionalOrder= orderRepository.findById(orderId);
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
         //проверяем заказ на null
-        if(optionalOrder.isEmpty()) return "redirect:/orderNotFound";
+        if (optionalOrder.isEmpty()) return "redirect:/orderNotFound";
         //передает в переменную заказ
         Order order = optionalOrder.get();
         //находим гейм зону
         Optional<GameZone> optionalGameZone = gameZoneRepository.findById(gameZoneId);
         //проверяем зону на null
-        if(optionalGameZone.isEmpty()) return "redirect:/gameZoneNotFound";
+        if (optionalGameZone.isEmpty()) return "redirect:/gameZoneNotFound";
         //передаем в переменную игровую зону
         GameZone gameZone = optionalGameZone.get();
         //создаем переменную даты
@@ -150,7 +155,8 @@ public class OrderController {
         int day = Integer.parseInt(dayOfMount.split("\\.")[0]);
         int mount = Integer.parseInt(dayOfMount.split("\\.")[1]);
         //проверяем является ли заказ на след год если да ставит новый год
-        if (day < 7 && mount == 1&&LocalDate.now().getDayOfMonth()>20) localDate = LocalDate.of(Year.now().getValue() + 1, mount, day);
+        if (day < 7 && mount == 1 && LocalDate.now().getDayOfMonth() > 20)
+            localDate = LocalDate.of(Year.now().getValue() + 1, mount, day);
         else localDate = LocalDate.of(Year.now().getValue(), mount, day);
         //получает начало резерва
         LocalTime localTimeStart = LocalTime.of(freeTime, 0);
@@ -167,10 +173,11 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public String orderShow(@PathVariable("id") Long id,
+                            @AuthenticationPrincipal Employee employeeAut,
                             Model model) {
         //находит заказ по ид
         Optional<Order> optionalOrder = orderRepository.findById(id);
-        //если заказ null то вызывается страничка ошибки
+        //если заказ null, то вызывается страничка ошибки
         if (optionalOrder.isEmpty()) return "orderNotFound";
         //если заказ найден присваивает переменной
         Order order = optionalOrder.get();
@@ -182,13 +189,24 @@ public class OrderController {
         for (Guest g : guestList) {
             guestCartList.addAll(guestCartRepository.findAllByGuest(g));
         }
+        //Высчитывание итоговой цены
+        if (!order.getPayment()) {
+            int total = 0;
+            for (GuestCart gc : guestCartList) {
+                Product product = gc.getProduct();
+                total += (product.getPrice() * gc.getQuantity());
+            }
+            order.setTotal(total);
+        }
         //создает переменную игровой зоный заказы
         Optional<GameZone> gameZone = Optional.ofNullable(order.getGameZone());
         //создает переменную менеджера
         Optional<Employee> employee = Optional.ofNullable(order.getManager());
+        Optional<Employee> optionalEmployeeAut = Optional.ofNullable(employeeAut);
         //передает все в модель
+        model.addAttribute("user", optionalEmployeeAut);
         model.addAttribute("order", order);
-        model.addAttribute("total", order.getTotal());
+        model.addAttribute("total", order.getTotal() / 10.0);
         model.addAttribute("guests", guestList);
         model.addAttribute("products", guestCartList);
         model.addAttribute("gameZone", gameZone);
@@ -215,6 +233,30 @@ public class OrderController {
         return "redirect:/order/" + order.getId();
     }
 
+    @PostMapping("/{id}/payment")
+    public String payment(@PathVariable("id") Long id) {
+        Optional<Order> optionalOrder = orderRepository.findById(id);
+        if (optionalOrder.isEmpty()) return "redirect:/orderNotFound";
+        Order order = optionalOrder.get();
+        List<Guest> guestList = guestRepository.findAllByOrder(order);
+        //создает список товаров сделанных гостями этого заказа
+        List<GuestCart> guestCartList = new ArrayList<>();
+        //помещает все товары в список
+        for (Guest g : guestList) {
+            guestCartList.addAll(guestCartRepository.findAllByGuest(g));
+        }
+        //Высчитывание итоговой цены
+        int total = 0;
+        for (GuestCart gc : guestCartList) {
+            Product product = gc.getProduct();
+            total += (product.getPrice() * gc.getQuantity());
+        }
+        order.setTotal(total);
+        order.setPayment(true);
+        orderRepository.save(order);
+        return "redirect:/order/" + order.getId();
+    }
+
     @PostMapping("/create")
     public String createOrder(@AuthenticationPrincipal Employee employee) {
         //создает заказ
@@ -223,9 +265,11 @@ public class OrderController {
         order.setManager(employee);
         //устанавливает дату создания заказа
         order.setDate(LocalDate.now());
+        order.setPayment(false);
+        order.setTariff(2);
         //сохраняет в бд заказ
         order = orderRepository.save(order);
-        //переадрисовывает на заказ
+        //переадресовывает на заказ
         return "redirect:/order/" + order.getId();
     }
 }

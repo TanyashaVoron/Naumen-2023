@@ -3,14 +3,12 @@ package com.naumen.anticafe.domain;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import lombok.Data;
 import jakarta.persistence.Id;
-
-import lombok.NoArgsConstructor;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
-@Data
+
 @Entity
-@NoArgsConstructor
+@Data
 public class Role implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

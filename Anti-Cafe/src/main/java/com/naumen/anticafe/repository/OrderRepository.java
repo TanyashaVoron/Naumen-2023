@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface OrderRepository  extends CrudRepository<Order, Long> {
 
-    List<Order> findByIdAndGameZone(Long id, GameZone gameZone);
-    List<Order> findAllByGameZone(GameZone gameZone);
+    List<Order> findByIdAndGameZoneOrderById(Long id, GameZone gameZone);
+    List<Order> findAllByGameZoneOrderById(GameZone gameZone);
     List<Order> findAllById(Long id);
-    List<Order> findAll();
+    List<Order> findAllByOrderById();
     List<Order> findAllByGameZoneAndReserveDateOrderByReserveDate(GameZone gameZone, LocalDate localDate);
 }

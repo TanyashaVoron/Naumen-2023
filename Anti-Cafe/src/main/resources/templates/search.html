@@ -2,27 +2,28 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Index</title>
+    <title>Поиск</title>
 </head>
 <body>
-<form th:method="GET" th:action="@{/}"><button type="submit">Главная страница</button> </form>
+<form th:method="GET" th:action="@{/static}"><button type="submit">Главная страница</button> </form>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-<form th:method="GET" th:action="@{/search}">
+<form th:method="GET" th:action="@{/templates/search}">
     <label for="orderId">Введите номер заказа</label>
     <input type="text"  th:name="orderId" id="orderId" placeholder="Номер заказа">
     <label for="gameZoneId">Введите игровую зону</label>
     <input type="text" th:name="gameZoneId" id="gameZoneId" placeholder="Номер зоны">
-    <input type="submit" value="Добавить!"/>
+    <input type="submit" value="Найти!"/>
 </form>
 <div th:each="order : ${orders}">
-    <a th:text="${order.getId() + ', '}">user</a>
-    <a th:if="${order.getGameZone()!=null}" th:text="${order.getGameZone().getId()+' '}">user</a>
-    <a th:href="@{/order/{id}(id=${order.getId()})}">-><a/>
+    <a th:text="'Номер заказа: '+${order.getId() + ', '}">user</a>
+    <a th:if="${order.getGameZone()==null}" th:text="'Столик не зарезервирован'"></a>
+    <a th:if="${order.getGameZone()!=null}" th:text="'Зарезервированный столик: '+${order.getGameZone().getId()}+', ' + ${order.getGameZone().getName()}">user</a>
+    <a th:href="@{/order/{id}(id=${order.getId()})}">-></a>
 </div>
 <form th:method="POST" th:action="@{/order/create}">
-    <input type="submit" value="Добавить!"/>
+    <input type="submit" value="Создать заказ!"/>
 </form>
 <br/>
-<hr/>
+<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
 </body>
 </html>

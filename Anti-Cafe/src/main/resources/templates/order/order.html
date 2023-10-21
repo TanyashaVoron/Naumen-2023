@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказ</title>
+</head>
+<body>
+<a th:href="@{/search}">Назад</a>
+<h3>Основное</h3>
+<br/>
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+<a th:if="${manager.isPresent()}" th:text="'Официант: '+${manager.get.getName()}">user</a>
+<br/>
+<a th:if="${gameZone.isPresent()}" th:text="'Игровая зона: '
++${gameZone.get().getName()}
++ '. '
++ ${order.getReserveDate()}
++' с '
++ ${order.getReserveTime()}
++ ' до '
++ ${order.getEndReserve()}
++'.'">user</a>
+<a th:if="${gameZone.isPresent()}" th:href="@{/order/{id}/reserve(id=${order.getId()})}" th:text=" Изменить резерв"></a>
+<a th:if="${gameZone.isEmpty}" th:href="@{/order/{id}/reserve(id=${order.getId()})}"
+   th:text="'Стол не зарезервирован. Зарезервировать стол?'"></a>
+<hr>
+<h3>Все гости</h3>
+<div th:each="guest : ${guests}">
+    <a th:href="@{/guest/{id}(id=${guest.getId()})}" th:text="${guest.getName()}"></a>
+</div>
+<form th:method="POST" th:action="@{/order/{id}/add_guest(id=${order.getId()})}">
+    <input type="submit" value="Добавить гостя"/>
+</form>
+<hr>
+<h3>Заказанные товары </h3>
+<div th:each="product : ${products}">
+    <a th:text="${product.getId()
+    + ', '
+    +product.getProduct().getName()
+    + ', '
+    + product.getQuantity()
+    + ', '
+    + product.getGuest().getName()}">user</a>
+</div>
+<form th:if="${!order.getPayment()}" th:method="POST" th:action="@{/order/{id}/payment(id=${order.getId()})}">
+    <input type="submit" value="Оплатить"/>
+</form>
+<a th:if="${order.getPayment()}" th:text="Оплачено"></a>
+<a th:text="'Итог: '+${total}">user</a>
+<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+<br/>
+</body>
+</html>
