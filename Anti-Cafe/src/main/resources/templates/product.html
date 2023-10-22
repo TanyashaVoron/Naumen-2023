@@ -7,6 +7,9 @@
 <body>
 <h1>Перечень товаров</h1>
 
+<form th:method="GET" th:action="@{/}"><button type="submit">Главная страница</button> </form>
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
 <form th:method="GET" th:action="@{/product/add}">
   <button type="submit">Добавить</button>
 </form>
@@ -23,7 +26,7 @@
   <tr th:each="product : ${products}">
     <td th:text="${product.id}"></td>
     <td th:text="${product.name}"></td>
-    <td th:text="${product.productCategory}"></td>
+    <td th:text="${product.getProductCategory().getName()}"></td>
     <td th:text="${product.price}"></td>
     <td th:text="${product.description}"></td>
     <td>

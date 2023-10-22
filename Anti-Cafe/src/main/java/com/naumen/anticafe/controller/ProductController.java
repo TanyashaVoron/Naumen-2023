@@ -1,5 +1,6 @@
 package com.naumen.anticafe.controller;
 
+import com.naumen.anticafe.repository.ProductCategoryRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -16,9 +17,11 @@ import java.util.Optional;
 @RequestMapping("/product")
 public class ProductController {
     private final ProductRepository productRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
-    public ProductController(ProductRepository productRepository) {
+    public ProductController(ProductRepository productRepository, ProductCategoryRepository productCategoryRepository) {
         this.productRepository = productRepository;
+        this.productCategoryRepository = productCategoryRepository;
     }
 
     @GetMapping
@@ -37,11 +40,23 @@ public class ProductController {
     }
 
     @PostMapping("/add")
-    public String addProduct(@ModelAttribute Product product) {
-        // Сохранить новый продукт в базе данных
+    public String addProduct(@ModelAttribute Product product, @ModelAttribute("productCategorys") String productCategoryName) {
+        Optional<ProductCategory> productCategoryOptional = productCategoryRepository.findByName(productCategoryName);
+
+        ProductCategory productCategory;
+        if (productCategoryOptional.isEmpty()) {
+            productCategory = new ProductCategory();
+            productCategory.setName(productCategoryName);
+            productCategory = productCategoryRepository.save(productCategory);
+        } else {
+            productCategory = productCategoryOptional.get();
+        }
+        product.setProductCategory(productCategory);
         productRepository.save(product);
+
         return "redirect:/product";
     }
+
 
     @GetMapping("/edit/{id}")
     public String showEditProductForm(@PathVariable Long id, Model model) {

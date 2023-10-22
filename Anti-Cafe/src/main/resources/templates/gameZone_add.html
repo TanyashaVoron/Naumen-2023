@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Добавление_Изменение игровой зоны</title>
+</head>
+<body>
+<h1>Добавление/Изменение игровой зоны</h1>
+
+<form th:object="${gameZone}" th:action="@{/gameZone/add}" method="post">
+  <label for="name">Имя:</label>
+  <input type="text" id="name" name="name" th:field="*{name}" required><br>
+
+  <label for="description">Описание:</label>
+  <textarea id="description" name="description" th:field="*{description}" required></textarea><br>
+
+  <button type="submit">Сохранить</button>
+</form>
+</body>
+</html>

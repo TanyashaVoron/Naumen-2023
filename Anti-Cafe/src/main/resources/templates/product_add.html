@@ -11,8 +11,8 @@
   <label for="name">Имя:</label>
   <input type="text" id="name" name="name" th:field="*{name}" required><br>
 
-  <label for="productCategory">Категория:</label>
-  <input type="text" id="productCategory" name="productCategory" th:field="*{productCategory}" required><br>
+  <label th:for="productCategory">Категория:</label>
+  <input type="text" th:name="productCategorys" th:id="productCategory"  required><br>
 
   <label for="price">Цена:</label>
   <input type="number" id="price" name="price" th:field="*{price}" required><br>

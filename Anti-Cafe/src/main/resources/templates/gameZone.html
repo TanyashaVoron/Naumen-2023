@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Игровые зоны</title>
+</head>
+<body>
+<h1>Игровые зоны</h1>
+
+<form th:method="GET" th:action="@{/}"><button type="submit">Главная страница</button> </form>
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+<form th:method="GET" th:action="@{/gameZone/add}">
+  <button type="submit">Добавить</button>
+</form>
+
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Имя</th>
+    <th>Описание</th>
+    <th>Действия</th>
+  </tr>
+  <tr th:each="gameZone : ${gameZones}">
+    <td th:text="${gameZone.id}"></td>
+    <td th:text="${gameZone.name}"></td>
+    <td th:text="${gameZone.description}"></td>
+    <td>
+      <a th:href="@{/gameZone/edit/{id}(id=${gameZone.id})}">Изменить</a> |
+      <a th:href="@{/gameZone/delete/{id}(id=${gameZone.id})}">Удалить</a>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
