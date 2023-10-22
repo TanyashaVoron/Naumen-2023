@@ -123,7 +123,7 @@ public class OrderController {
         model.addAttribute("orderId", orderId);
         model.addAttribute("gameZones", gameZoneList);
         model.addAttribute("dayOfReserve", dayOfReserve);
-        return "reserve";
+        return "/order/reserve";
     }
 
     @GetMapping("/{id}/reserve/Add/{day}/{gameZoneId}/{freeTime}/{maxHour}")
@@ -140,7 +140,7 @@ public class OrderController {
         //находим заказ
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         //проверяем заказ на null
-        if (optionalOrder.isEmpty()) return "redirect:/orderNotFound";
+        if (optionalOrder.isEmpty()) return "/order/orderNotFound";
         //передает в переменную заказ
         Order order = optionalOrder.get();
         //находим гейм зону
@@ -211,7 +211,7 @@ public class OrderController {
         model.addAttribute("products", guestCartList);
         model.addAttribute("gameZone", gameZone);
         model.addAttribute("manager", employee);
-        return "order";
+        return "/order/order";
     }
 
     @PostMapping("/{id}/add_guest")
