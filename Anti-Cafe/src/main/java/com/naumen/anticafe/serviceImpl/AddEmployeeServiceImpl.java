@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -29,13 +30,15 @@ public class AddEmployeeServiceImpl implements AddEmployeeService {
     public List<Role> getAllRole(){
         return roleRepository.findAll();
     }
-    public Employee saveUser(String name, String username, String password, Role role){
+    public Employee saveUser(String name, String username, String password, Long roleId){
         Employee employee = new Employee();
         employee.setName(name);
         employee.setUsername(username);
         employee.setPassword(passwordEncoder.encode(password));
+        Optional<Role> optionalRole = roleRepository.findById(roleId);
+        if(optionalRole.isEmpty()) return null;
         Set<Role> set = new HashSet<>();
-        set.add(role);
+        set.add(optionalRole.get());
         employee.setRole(set);
         employee.setEnabled(true);
         employee.setCredentialsNonExpired(true);

@@ -20,7 +20,7 @@
 + ' до '
 + ${order.getEndReserve()}
 +'.'">user</a>
-<a th:if="${gameZone.isPresent()}" th:href="@{/order/{id}/reserve(id=${order.getId()})}" th:text=" Изменить резерв"></a>
+<a th:if="${gameZone.isPresent()}" th:href="@{/order/{id}/reserve(id=${order.getId()})}" th:text="' Изменить резерв'"></a>
 <a th:if="${gameZone.isEmpty}" th:href="@{/order/{id}/reserve(id=${order.getId()})}"
    th:text="'Стол не зарезервирован. Зарезервировать стол?'"></a>
 <hr>

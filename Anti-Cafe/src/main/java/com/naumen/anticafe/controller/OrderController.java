@@ -46,10 +46,10 @@ public class OrderController {
         //создает список дней для резервов
         List<String> dayOfReserve = new ArrayList<>();
         //создаем переменную текущего дня для заполнения
-        LocalDate dateNow = LocalDate.now();
+        LocalDate date = LocalDate.now();
         //вносим в лист все последующее 7 дней
         for (int i = 0; i < 7; i++) {
-            dateNow = dateNow.plusDays(1);
+            LocalDate dateNow = date.plusDays(i);
             dayOfReserve.add(dateNow.getDayOfMonth() + "." + dateNow.getMonthValue());
         }
         //проверяем передачу дня и игровой зоны
@@ -89,7 +89,7 @@ public class OrderController {
                     //получает конечный час резерва
                     int end = o.getEndReserve().getHour();
                     //удаляет из allTimeReserve зарезервированные часы от start до end
-                    for (int i = start; i <= end; i++) {
+                    for (int i = start; i < end; i++) {
                         allTimeReserve.remove((Object) i);
                     }
                 }
@@ -125,7 +125,7 @@ public class OrderController {
         model.addAttribute("dayOfReserve", dayOfReserve);
         return "/order/reserve";
     }
-
+    //УЖАСНЫЙ УРЛ АХТУНГ
     @GetMapping("/{id}/reserve/Add/{day}/{gameZoneId}/{freeTime}/{maxHour}")
     public String addReserve(@PathVariable("id") Long orderId,
                              @PathVariable("day") String dayOfMount,
@@ -178,7 +178,7 @@ public class OrderController {
         //находит заказ по ид
         Optional<Order> optionalOrder = orderRepository.findById(id);
         //если заказ null, то вызывается страничка ошибки
-        if (optionalOrder.isEmpty()) return "orderNotFound";
+        if (optionalOrder.isEmpty()) return "order/orderNotFound";
         //если заказ найден присваивает переменной
         Order order = optionalOrder.get();
         //находит всех гостей этого заказа и помещает их в guestList
@@ -211,7 +211,7 @@ public class OrderController {
         model.addAttribute("products", guestCartList);
         model.addAttribute("gameZone", gameZone);
         model.addAttribute("manager", employee);
-        return "/order/order";
+        return "order/order";
     }
 
     @PostMapping("/{id}/add_guest")
