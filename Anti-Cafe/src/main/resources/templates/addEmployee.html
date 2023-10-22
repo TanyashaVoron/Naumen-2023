@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить сотрудника</title>
+</head>
+<body>
+<form th:method="GET" th:action="@{/}"><button type="submit">Главная страница</button> </form>
+<form th:method="POST" th:action="@{/addEmployee}">
+    <label for="name">Имя</label>
+    <input type="text" name="name" id="name"><br/>
+    <label for="username">Имя пользователя</label>
+    <input type="text" name="username" id="username"><br/>
+    <label for="password">Пароль</label>
+    <input type="text" name="password" id="password"><br/>
+    <label>
+        <select th:name="role">
+            <option th:each="role:${roles}" th:value="${role}" th:text="${role}"></option>
+        </select>
+    </label>
+    <input type="submit" value="Добавить">
+</form>
+<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+</body>
+</html>

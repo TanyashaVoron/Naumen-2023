@@ -7,14 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "guest_carts")
-public class GuestCart {
+@Table(name = "clients")
+public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    private Guest guest;
-    @ManyToOne
-    private Product product;
-    private int quantity;
+    private String fio;
+    private String phone;
+    private String password;
 }

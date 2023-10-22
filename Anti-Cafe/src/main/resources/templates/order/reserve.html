@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>Резервирование</title>
+</head>
+<body>
+<form th:method="GET" th:action="@{/order/{id}/reserve(id=${orderId})}">
+    <label>
+        <select th:name="dayMonth" th:onchange="">
+            <option th:each="days:${dayOfReserve}" th:value="${days}" th:text="${days}"></option>
+        </select>
+        <select th:name="gameZoneId" th:onchange="">
+            <option th:each="gameZone:${gameZones}" th:value="${gameZone.getId()}" th:text="${gameZone.getId()}"></option>
+        </select>
+    </label>
+    <input type="submit" value="Найти"/>
+</form>
+Свободное время
+<div  th:each="freeTime:${freeTimes}">
+    <a th:text="${freeTime[0]} + ':00 на '+${freeTime[1]}+' ч.'"></a>
+    <form th:method="GET" th:action="@{/order/{id}/reserve/Add/{day}/{gameZoneId}/{freeTime}/{maxHour}(id=${orderId},day=${dayMonth},gameZoneId=${gameZoneId},freeTime=${freeTime[0]},maxHour=${freeTime[1]})}">
+        <label th:for="hour"></label>
+        <input type="text" th:name="hour" th:id="hour"/>
+        <input type="submit" th:value="Зарезервировать">
+    </form>
+</div>
+<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+</body>
+</html>

@@ -1,1 +1,9 @@
-
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/AntiCafe
+    password: 030869
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    
