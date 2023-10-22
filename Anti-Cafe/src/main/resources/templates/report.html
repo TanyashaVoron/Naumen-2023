@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Отчет</title>
+</head>
+<body>
+<h1>Отчет</h1>
+
+<form th:method="GET" th:action="@{/}"><button type="submit">Главная страница</button> </form>
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+<form action="/report" method="post">
+  <label for="reservationNumber">Номер брони:</label>
+  <input type="text" id="reservationNumber" name="reservationNumber"><br>
+
+  <label for="tableNumber">Столик:</label>
+  <input type="text" id="tableNumber" name="tableNumber"><br>
+
+  <label for="administrator">Администратор:</label>
+  <input type="text" id="administrator" name="administrator"><br>
+
+  <label for="client">Клиент:</label>
+  <input type="text" id="client" name="client"><br>
+
+  <label for="periodFrom">Период до:</label>
+  <input type="date" id="periodFrom" name="periodFrom"><br>
+
+  <label for="periodTo">Период после:</label>
+  <input type="date" id="periodTo" name="periodTo"><br>
+
+  <button type="submit">Найти</button>
+</form>
+
+<table>
+  <tr>
+    <th>Номер брони</th>
+    <th>Столик</th>
+    <th>Администратор</th>
+    <th>Цена</th>
+    <th>Действия</th>
+  </tr>
+  <tr th:each="order : ${orders}">
+    <td th:text="${order.id}"></td>
+    <td th:text="${order.gameZone}"></td>
+    <td th:text="${order.manager}"></td>
+    <td th:text="${order.total}"></td>
+    <td>
+      <a th:href="@{'/order/' + ${order.id}}">Перейти к заказу</a>
+    </td>
+  </tr>
+</table>
+
+<p>Итого: <span th:text="${totalPriceOfAllOrders}"></span></p>
+
+</body>
+</html>

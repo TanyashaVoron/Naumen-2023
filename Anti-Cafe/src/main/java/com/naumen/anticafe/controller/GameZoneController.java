@@ -25,7 +25,7 @@ public class GameZoneController {
     @GetMapping
     public String getAllGameZone(Model model) {
         List<GameZone> gamezone = gameZoneRepository.findAll();
-        model.addAttribute("gameZone", gamezone);
+        model.addAttribute("gameZones", gamezone);
         return "gameZone";
     }
 
@@ -55,7 +55,16 @@ public class GameZoneController {
 
     @PostMapping("/edit")
     public String editGameZone(@ModelAttribute GameZone gameZone) {
-        gameZoneRepository.save(gameZone);
+        Optional<GameZone> existingGameZone = gameZoneRepository.findById(gameZone.getId());
+
+        if (existingGameZone.isPresent()) {
+            GameZone updatedGameZone = new GameZone();
+            updatedGameZone.setName(gameZone.getName());
+            updatedGameZone.setDescription(gameZone.getDescription());
+            gameZoneRepository.save(updatedGameZone);
+            gameZoneRepository.delete(existingGameZone.get());
+        }
+
         return "redirect:/gameZone";
     }
 
