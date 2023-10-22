@@ -32,6 +32,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         //контроль доступа пользователям(на текущий момент все открыто)
         httpSecurity.authorizeHttpRequests(request -> request.anyRequest().permitAll()).formLogin().loginPage("/login");
+        httpSecurity.csrf().ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"));
+        httpSecurity.headers().frameOptions().sameOrigin();
         return httpSecurity.build();
     }
 }

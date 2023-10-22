@@ -15,7 +15,7 @@
     <input type="text" name="password" id="password"><br/>
     <label>
         <select th:name="role">
-            <option th:each="role:${roles}" th:value="${role}" th:text="${role}"></option>
+            <option th:each="role:${roles}" th:value="${role.getId()}" th:text="${role.getRole()}"></option>
         </select>
     </label>
     <input type="submit" value="Добавить">

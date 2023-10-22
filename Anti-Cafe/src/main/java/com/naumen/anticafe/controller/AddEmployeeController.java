@@ -31,8 +31,8 @@ public class AddEmployeeController {
         return "addEmployee";
     }
     @PostMapping
-    public String addEmployee(@RequestParam("name")String name, @RequestParam("username")String username, @RequestParam("password")String password,  @RequestParam("role")Role role){
-
+    public String addEmployee(@RequestParam("name")String name, @RequestParam("username")String username, @RequestParam("password")String password,  @RequestParam("role") Long roleId){
+        addEmployeeService.saveUser(name,username,password,roleId);
         return "redirect:/";
     }
 }

@@ -5,9 +5,7 @@
     <title>Авторизация</title>
 </head>
 <body>
-<div th:if="${error}">
-    Error login or password
-</div>
+<form th:method="GET" th:action="@{/}"><button type="submit">Главная страница</button> </form>
 <form method="POST" th:action="@{/login}" id="loginForm">
     <label for="username">Username</label>
     <input type="text" name="username" id="username"><br/>
