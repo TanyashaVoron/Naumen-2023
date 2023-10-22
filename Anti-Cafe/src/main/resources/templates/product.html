@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Перечень товаров</title>
+</head>
+<body>
+<h1>Перечень товаров</h1>
+
+<form th:method="GET" th:action="@{/product/add}">
+  <button type="submit">Добавить</button>
+</form>
+
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Имя</th>
+    <th>Категория</th>
+    <th>Цена</th>
+    <th>Описание</th>
+    <th>Действия</th>
+  </tr>
+  <tr th:each="product : ${products}">
+    <td th:text="${product.id}"></td>
+    <td th:text="${product.name}"></td>
+    <td th:text="${product.productCategory}"></td>
+    <td th:text="${product.price}"></td>
+    <td th:text="${product.description}"></td>
+    <td>
+      <a th:href="@{/product/edit/{id}(id=${product.id})}">Изменить</a> |
+      <a th:href="@{/product/delete/{id}(id=${product.id})}">Удалить</a>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
