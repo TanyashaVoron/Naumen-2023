@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Year;
@@ -89,7 +90,7 @@ public class OrderController {
                     //получает конечный час резерва
                     int end = o.getEndReserve().getHour();
                     //удаляет из allTimeReserve зарезервированные часы от start до end
-                    for (int i = start; i < end; i++) {
+                    for (int i = start; i <= end; i++) {
                         allTimeReserve.remove((Object) i);
                     }
                 }
@@ -123,24 +124,27 @@ public class OrderController {
         model.addAttribute("orderId", orderId);
         model.addAttribute("gameZones", gameZoneList);
         model.addAttribute("dayOfReserve", dayOfReserve);
-        return "/order/reserve";
+        return "order/reserve";
     }
-    //УЖАСНЫЙ УРЛ АХТУНГ
-    @GetMapping("/{id}/reserve/Add/{day}/{gameZoneId}/{freeTime}/{maxHour}")
+    @PostMapping("/{id}/reserve/Add")
     public String addReserve(@PathVariable("id") Long orderId,
-                             @PathVariable("day") String dayOfMount,
-                             @PathVariable("gameZoneId") Long gameZoneId,
-                             @PathVariable("freeTime") int freeTime,
-                             @PathVariable("maxHour") int maxHour,
-                             @ModelAttribute(value = "hour") int hour) {
+                             @ModelAttribute(value = "dayOfMount") String dayOfMount,
+                             @ModelAttribute(value = "gameZoneId") Long gameZoneId,
+                             @ModelAttribute(value = "freeTime") int freeTime,
+                             @ModelAttribute(value = "maxHour") int maxHour,
+                             @ModelAttribute(value = "hour") String hours) {
         //проверяем корректность переданных часов
+        if(hours.equals("")){
+            return "redirect:/order/" + orderId + "/reserve?dayMonth=" + dayOfMount + "&gameZoneId=" + gameZoneId;
+        }
+        int hour = Integer.parseInt(hours);
         if (maxHour < hour || hour <= 0) {
-            return "redirect:/order/" + orderId + "/reserve?gameZoneId=" + gameZoneId + "&day=" + dayOfMount;
+            return "redirect:/order/" + orderId + "/reserve?dayMonth=" + dayOfMount + "&gameZoneId=" + gameZoneId;
         }
         //находим заказ
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         //проверяем заказ на null
-        if (optionalOrder.isEmpty()) return "/order/orderNotFound";
+        if (optionalOrder.isEmpty()) return "order/orderNotFound";
         //передает в переменную заказ
         Order order = optionalOrder.get();
         //находим гейм зону
@@ -161,7 +165,9 @@ public class OrderController {
         //получает начало резерва
         LocalTime localTimeStart = LocalTime.of(freeTime, 0);
         //получает конец резерва
-        LocalTime localTimeEnd = LocalTime.of(freeTime + hour, 0);
+        LocalTime localTimeEnd;
+        localTimeEnd = LocalTime.of(freeTime + hour-1, 59);
+
         //передача всех данных
         order.setGameZone(gameZone);
         order.setReserveDate(localDate);
