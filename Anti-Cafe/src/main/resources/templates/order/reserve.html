@@ -20,8 +20,12 @@
 Свободное время
 <div  th:each="freeTime:${freeTimes}">
     <a th:text="${freeTime[0]} + ':00 на '+${freeTime[1]}+' ч.'"></a>
-    <form th:method="GET" th:action="@{/order/{id}/reserve/Add/{day}/{gameZoneId}/{freeTime}/{maxHour}(id=${orderId},day=${dayMonth},gameZoneId=${gameZoneId},freeTime=${freeTime[0]},maxHour=${freeTime[1]})}">
+    <form th:method="POST" th:action="@{/order/{id}/reserve/Add(id=${orderId})}">
         <label th:for="hour"></label>
+        <input th:type="hidden" th:value="${dayMonth}" th:name="dayOfMount">
+        <input th:type="hidden" th:value="${gameZoneId}" th:name="gameZoneId">
+        <input th:type="hidden" th:value="${freeTime[0]}" th:name="freeTime">
+        <input th:type="hidden" th:value="${freeTime[1]}" th:name="maxHour">
         <input type="text" th:name="hour" th:id="hour"/>
         <input type="submit" th:value="Зарезервировать">
     </form>
