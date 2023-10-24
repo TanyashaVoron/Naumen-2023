@@ -6,7 +6,7 @@
 </head>
 <body>
 <form th:if="${user.isEmpty()}" th:method="GET" th:action="@{/login}"><button type="submit">Войти</button> </form>
-<form th:if="${user.isPresent()}" th:method="GET" th:action="@{/login}"><button type="submit">Выйти</button> </form>
+<form th:if="${user.isPresent()}" th:method="POST" th:action="@{/logout}"><button type="submit">Выйти</button> </form>
 <form th:method="GET" th:action="@{/report}"><button type="submit">Отчет</button> </form>
 <form th:method="GET" th:action="@{/addEmployee}"><button type="submit">Добавить пользователя</button> </form>
 <form th:method="GET" th:action="@{/product}"><button type="submit">Товары</button> </form>
