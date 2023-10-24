@@ -1,8 +1,7 @@
 package com.naumen.anticafe.controller;
 
 import com.naumen.anticafe.domain.Employee;
-import com.naumen.anticafe.domain.Role;
-import com.naumen.anticafe.service.AddEmployeeService;
+import com.naumen.anticafe.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -16,23 +15,23 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/addEmployee")
-public class AddEmployeeController {
-    private final AddEmployeeService addEmployeeService;
+public class EmployeeController {
+    private final EmployeeService employeeService;
     @Autowired
-    public AddEmployeeController(AddEmployeeService addEmployeeService) {
-        this.addEmployeeService = addEmployeeService;
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
     @GetMapping
     public String addEmployeeShow(@AuthenticationPrincipal Employee employee, Model model){
         Optional<Employee> optionalEmployee = Optional.ofNullable(employee);
         model.addAttribute("user",optionalEmployee);
-        model.addAttribute("roles",addEmployeeService.getAllRole());
+        model.addAttribute("roles", employeeService.getAllRole());
         return "addEmployee";
     }
     @PostMapping
     public String addEmployee(@RequestParam("name")String name, @RequestParam("username")String username, @RequestParam("password")String password,  @RequestParam("role") Long roleId){
-        addEmployeeService.saveUser(name,username,password,roleId);
+        employeeService.saveEmployee(name,username,password,roleId);
         return "redirect:/";
     }
 }

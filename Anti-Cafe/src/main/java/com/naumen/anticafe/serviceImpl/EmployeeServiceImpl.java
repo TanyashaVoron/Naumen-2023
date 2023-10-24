@@ -4,7 +4,7 @@ import com.naumen.anticafe.domain.Employee;
 import com.naumen.anticafe.domain.Role;
 import com.naumen.anticafe.repository.EmployeeRepository;
 import com.naumen.anticafe.repository.RoleRepository;
-import com.naumen.anticafe.service.AddEmployeeService;
+import com.naumen.anticafe.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,14 +15,14 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class AddEmployeeServiceImpl implements AddEmployeeService {
+public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     @Autowired
-    public AddEmployeeServiceImpl(EmployeeRepository employeeRepository,
-                                  RoleRepository roleRepository,
-                                  PasswordEncoder passwordEncoder) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository,
+                               RoleRepository roleRepository,
+                               PasswordEncoder passwordEncoder) {
         this.employeeRepository = employeeRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -30,7 +30,7 @@ public class AddEmployeeServiceImpl implements AddEmployeeService {
     public List<Role> getAllRole(){
         return roleRepository.findAll();
     }
-    public Employee saveUser(String name, String username, String password, Long roleId){
+    public Employee saveEmployee(String name, String username, String password, Long roleId){
         Employee employee = new Employee();
         employee.setName(name);
         employee.setUsername(username);

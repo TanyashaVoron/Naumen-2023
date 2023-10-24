@@ -6,42 +6,118 @@
 </head>
 <body>
 <a th:href="@{/search}">Назад</a>
-<h3>Основное</h3>
-<br/>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-<a th:if="${manager.isPresent()}" th:text="'Официант: '+${manager.get.getName()}">user</a>
-<br/>
-<a th:if="${gameZone.isPresent()}" th:text="'Игровая зона: '
-+${gameZone.get().getName()}
-+ '. '
-+ ${order.getReserveDate()}
-+' с '
-+ ${order.getReserveTime()}
-+ ' до '
-+ ${order.getEndReserve()}
-+'.'">user</a>
-<a th:if="${gameZone.isPresent()}" th:href="@{/order/{id}/reserve(id=${order.getId()})}" th:text="' Изменить резерв'"></a>
-<a th:if="${gameZone.isEmpty}" th:href="@{/order/{id}/reserve(id=${order.getId()})}"
-   th:text="'Стол не зарезервирован. Зарезервировать стол?'"></a>
+<table th:if="${order.getGameZone()==null}">
+    <tr>
+        <th>Официант</th>
+        <th>Резерв столов</th>
+    </tr>
+    <tr>
+        <td>
+            <a th:if="${order.getManager()!=null}" th:text="${order.getManager().getName()}"/>
+        </td>
+        <td>
+            <a th:href="@{/order/{id}/reserve(id=${order.getId()})}" th:text="'Добавить резерв'"></a>
+        </td>
+    </tr>
+</table>
+<table th:if="${order.getGameZone()!=null}">
+    <tr>
+        <th>Официант</th>
+        <th>Игровая зона</th>
+        <th>Дата резерва</th>
+        <th>Время резерва</th>
+        <th>Резерв до</th>
+        <th>Действия</th>
+    </tr>
+    <tr>
+        <td>
+            <a th:if="${order.getManager()!=null}" th:text="${order.getManager().getName()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getGameZone()!=null}"
+               th:text="${order.getGameZone().getId()}+':'+${order.getGameZone().getName()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getReserveDate()!=null}"
+               th:text="${order.getReserveDate().getDayOfMonth()}+'.'+${order.getReserveDate().getMonthValue()} + '.'+ ${order.getReserveDate().getYear()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getReserveTime()!=null}"
+               th:text="${order.getReserveTime().getHour()}+':'+${order.getReserveTime().getMinute()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getEndReserve()!=null}"
+               th:text="${order.getEndReserve().getHour()}+':'+${order.getEndReserve().getMinute()}"/>
+        </td>
+        <td>
+            <a th:href="@{/order/{id}/reserve(id=${order.getId()})}" th:text="'Изменить резерв'"></a>
+            <form th:method="POST" th:action="@{/order/{id}/deleteReserve(id=${order.getId()})}">
+                <input type="submit" th:value="'Отменить резерв'">
+            </form>
+        </td>
+    </tr>
+</table>
 <hr>
-<h3>Все гости</h3>
-<div th:each="guest : ${guests}">
-    <a th:href="@{/guest/{id}(id=${guest.getId()})}" th:text="${guest.getName()}"></a>
-</div>
-<form th:method="POST" th:action="@{/order/{id}/add_guest(id=${order.getId()})}">
-    <input type="submit" value="Добавить гостя"/>
-</form>
+<table>
+    <tr>
+        <th>Гости</th>
+        <th>Товары</th>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <th>Гость</th>
+                    <th>Действие</th>
+                </tr>
+                <tr th:each=" guest:${guests}">
+                    <td>
+                        <a th:href="@{/guest/{id}(id=${guest.getId()})}" th:text="${guest.getName()}"></a>
+                    </td>
+                    <td>
+                        <form th:method="POST" th:action="@{/order/{id}/deleteGuest(id=${order.getId()})}">
+                            <input type="hidden" th:value="${guest.getId()}" th:name="guestId">
+                            <input type="submit" th:value="'Удалить клиента'">
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <form th:method="POST" th:action="@{/order/{id}/addGuest(id=${order.getId()})}">
+                            <input type="submit" value="Добавить гостя"/>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <th>№</th>
+                    <th>Позиция</th>
+                    <th>Количество</th>
+                    <th>Гость</th>
+                </tr>
+                <tr th:each="product:${products}">
+                    <td>
+                        <a th:text="${product.getId()}"></a>
+                    </td>
+                    <td>
+                        <a th:text="${product.getProduct().getName()}"></a>
+                    </td>
+                    <td>
+                        <a th:text="${product.getQuantity()}"></a>
+                    </td>
+                    <td>
+                        <a th:text="${product.getGuest().getName()}"></a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 <hr>
-<h3>Заказанные товары </h3>
-<div th:each="product : ${products}">
-    <a th:text="${product.getId()
-    + ', '
-    +product.getProduct().getName()
-    + ', '
-    + product.getQuantity()
-    + ', '
-    + product.getGuest().getName()}">user</a>
-</div>
 <form th:if="${!order.getPayment()}" th:method="POST" th:action="@{/order/{id}/payment(id=${order.getId()})}">
     <input type="submit" value="Оплатить"/>
 </form>
