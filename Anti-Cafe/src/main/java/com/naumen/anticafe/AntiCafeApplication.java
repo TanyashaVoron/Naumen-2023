@@ -90,7 +90,7 @@ public class AntiCafeApplication {
             productRepository.save(product2);
             for (int i = 1; i < 4; i++) {
                 Guest guest = new Guest();
-                guest.setOrder(order);
+                guest.setCompositeId(new GuestId((long)i, order));
                 guest.setName(i + " гость");
                 guestRepository.save(guest);
                 GuestCart guestCart = new GuestCart();

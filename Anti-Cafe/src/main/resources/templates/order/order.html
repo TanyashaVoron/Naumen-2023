@@ -73,12 +73,12 @@
                 </tr>
                 <tr th:each=" guest:${guests}">
                     <td>
-                        <a th:href="@{/guest/{id}(id=${guest.getId()})}" th:text="${guest.getName()}"></a>
+                        <a th:href="@{/guest/{id}?order={order_id}(order_id=${order.getId()},id=${guest.getCompositeId().getGuestId()})}" th:text="${guest.getName()}"></a>
                     </td>
                     <td>
                         <a th:if="${eGuestMessage.isPresent()&&eGuestId.isPresent()&&eGuestId.get().equals(guest.getId())}" th:text="${eGuestMessage.get()}"></a>
                         <form th:method="POST" th:action="@{/order/{id}/deleteGuest(id=${order.getId()})}">
-                            <input type="hidden" th:value="${guest.getId()}" th:name="guestId">
+                            <input type="hidden" th:value="${guest.getCompositeId().getGuestId()}" th:name="guestId">
                             <input type="submit" th:value="'Удалить клиента'">
                         </form>
                     </td>

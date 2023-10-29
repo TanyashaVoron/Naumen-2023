@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
     }
     @Override
     public List<Guest> getGuestListByOrder(Order order){
-        return guestRepository.findAllByOrder(order);
+        return guestRepository.findAllByCompositeIdOrder(order);
     }
 
 
@@ -129,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
         if (optionalOrder.isEmpty()) throw new NotFoundException("Заказ не найден");
         Order order = optionalOrder.get();
         if(order.getPayment()) throw new NotFoundException("Заказ уже оплачен");
-        Optional<Guest> optionalGuest = guestRepository.findById(guestId);
+        Optional<Guest> optionalGuest = guestRepository.findById(new GuestId(guestId, order));
         if(optionalGuest.isEmpty()) throw new NotFoundException("Гость не найден");
         long countGuestCart = guestCartRepository.countByGuest(optionalGuest.get());
         if(countGuestCart!=0) throw new GuestsHaveGoodsException("У гостя есть товары",guestId);
@@ -156,10 +156,10 @@ public class OrderServiceImpl implements OrderService {
         Order order = optionalOrder.get();
         if(order.getPayment()) throw new NotFoundException("Заказ уже оплачен");
         Guest guest = new Guest();
-        guest.setOrder(order);
         //получает и инкриминирует номер текущего гостя
-        long count = guestRepository.countByOrder(order);
+        long count = guestRepository.countByCompositeIdOrder(order);
         count++;
+        guest.setCompositeId(new GuestId(count, order));
         //создает имя гостя
         guest.setName("Гость №" + count);
         //сохраняет гостя
