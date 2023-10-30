@@ -1,7 +1,9 @@
 package com.naumen.anticafe.serviceImpl;
 
 import com.naumen.anticafe.domain.Employee;
+import com.naumen.anticafe.domain.Order;
 import com.naumen.anticafe.domain.Role;
+import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.repository.EmployeeRepository;
 import com.naumen.anticafe.repository.RoleRepository;
 import com.naumen.anticafe.service.EmployeeService;
@@ -27,16 +29,25 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
+    public List<Employee> getEmployeeList(){
+        return employeeRepository.findAll();
+    }
+    public Employee getEmployee(Long employeeId) throws NotFoundException {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
+        if (optionalEmployee.isEmpty()) throw new NotFoundException("Сотрудник не найден");
+        return optionalEmployee.get();
+    }
     public List<Role> getAllRole(){
         return roleRepository.findAll();
     }
-    public Employee saveEmployee(String name, String username, String password, Long roleId){
+
+    public Employee saveEmployee(String name, String username, String password, Long roleId) throws NotFoundException {
         Employee employee = new Employee();
         employee.setName(name);
         employee.setUsername(username);
         employee.setPassword(passwordEncoder.encode(password));
         Optional<Role> optionalRole = roleRepository.findById(roleId);
-        if(optionalRole.isEmpty()) return null;
+        if(optionalRole.isEmpty()) throw new NotFoundException("Роль не найдена");;
         Set<Role> set = new HashSet<>();
         set.add(optionalRole.get());
         employee.setRole(set);

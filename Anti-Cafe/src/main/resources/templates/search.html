@@ -19,7 +19,7 @@
     <label for="employee">Укажите сотрудника: </label>
     <select th:name="employee" id="employee">
         <option th:value="${null}" th:text="'Все'"></option>
-        <option th:each="employee:${employees}" th:value="${employee.getId()}" th:text="${employee.getName()}"></option>
+        <option th:each="employee:${employees}" th:value="${employee}" th:text="${employee.getName()}"></option>
     </select>
     <label for="day">Введите день резерва</label>
     <input type="date" th:name="date" id="day">

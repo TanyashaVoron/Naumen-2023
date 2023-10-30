@@ -28,4 +28,5 @@ public class Order {
     private LocalDate date;
     private int tariff;
     private int total;
+    private Boolean taggedDelete;
 }

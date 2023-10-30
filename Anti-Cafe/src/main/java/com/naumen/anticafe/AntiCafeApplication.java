@@ -81,6 +81,7 @@ public class AntiCafeApplication {
             order.setReserveTime(LocalTime.of(15,0));
             order.setEndReserve(LocalTime.of(16,0));
             order.setDate(LocalDate.of(2023,5,6));
+            order.setTaggedDelete(false);
             orderRepository.save(order);
             Product product1 = new Product();
             product1.setName("ooo");

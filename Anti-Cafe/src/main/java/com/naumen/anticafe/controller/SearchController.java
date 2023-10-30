@@ -1,11 +1,11 @@
 package com.naumen.anticafe.controller;
 
 import com.naumen.anticafe.domain.Employee;
-import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;
-import com.naumen.anticafe.repository.GameZoneRepository;
-import com.naumen.anticafe.repository.OrderRepository;
-import com.naumen.anticafe.service.SearchService;
+import com.naumen.anticafe.error.NotFoundException;
+import com.naumen.anticafe.service.EmployeeService;
+import com.naumen.anticafe.service.OrderService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +22,12 @@ import java.util.Optional;
 @RequestMapping("/search")
 public class SearchController {
 
-    private final SearchService searchService;
+    private final OrderService orderService;
+    private final EmployeeService employeeService;
     @Autowired
-    public SearchController(SearchService searchService) {
-        this.searchService = searchService;
+    public SearchController(OrderService orderService, EmployeeService employeeService) {
+        this.orderService = orderService;
+        this.employeeService = employeeService;
     }
 
     @GetMapping()
@@ -35,15 +36,21 @@ public class SearchController {
                              @RequestParam(value = "gameZoneId", required = false) Long gameZoneId,
                              @RequestParam(value = "payment",required = false) Boolean payment,
                              @RequestParam(value = "date",required = false) LocalDate reserveDate,
-                             @RequestParam(value = "employee",required = false) Long employeeId,
-                             @AuthenticationPrincipal Employee employee){
-        Iterable<Employee> employeeIterable = searchService.getEmployees();
-        List<Order> orders = searchService.getOrderByIdOrGameZoneOrPayment(orderId,gameZoneId,payment,reserveDate,employeeId);
+                             @RequestParam(value = "employee",required = false) Employee employeeSearch,
+                             @AuthenticationPrincipal Employee employee) {
+        List<Employee> employeeList = employeeService.getEmployeeList();
+        List<Order> orders;
+        try {
+            orders = orderService.getOrderByIdOrGameZoneOrPayment(orderId,gameZoneId,payment,reserveDate,employeeSearch);
+        } catch (NotFoundException e) {
+            model.addAttribute("message",e.getMessage());
+            return "redirect:/order/notFound";
+        }
         Optional<Employee> optionalEmployee = Optional.ofNullable(employee);
         model.addAttribute("user",optionalEmployee);
         //добавляет в модель список найденных заказов если они есть
         model.addAttribute("orders",orders);
-        model.addAttribute("employees",employeeIterable);
+        model.addAttribute("employees",employeeList);
         return "search";
     }
 }
