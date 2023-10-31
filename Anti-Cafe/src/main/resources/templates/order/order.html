@@ -6,6 +6,10 @@
 </head>
 <body>
 <a th:href="@{/search}">Назад</a>
+<form th:if="${!order.getTaggedDelete()}" th:method="POST" th:action="@{/order/markForDeletion}">
+    <input type="hidden" th:value="${order.getId()}" th:name="orderId">
+    <input type="submit" value="Пометить на удаление"/>
+</form>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
 <table th:if="${order.getGameZone()==null}">
     <tr>
@@ -52,7 +56,8 @@
         </td>
         <td>
             <a th:href="@{/order/{id}/reserve(id=${order.getId()})}" th:text="'Изменить резерв'"></a>
-            <form th:method="POST" th:action="@{/order/{id}/deleteReserve(id=${order.getId()})}">
+            <form th:method="POST" th:action="@{/order/deleteReserve}">
+                <input type="hidden" th:value="${order.getId()}" th:name="orderId">
                 <input type="submit" th:value="'Отменить резерв'">
             </form>
         </td>
@@ -77,15 +82,17 @@
                     </td>
                     <td>
                         <a th:if="${errorGuestMessage.isPresent()&&errorGuestId.isPresent()&&errorGuestId.get().equals(guest.getCompositeId().getGuestId())}" th:text="${errorGuestMessage.get()}"></a>
-                        <form th:method="POST" th:action="@{/order/{id}/deleteGuest(id=${order.getId()})}">
+                        <form th:method="POST" th:action="@{/order/deleteGuest}">
                             <input type="hidden" th:value="${guest.getCompositeId().getGuestId()}" th:name="guestId">
+                            <input type="hidden" th:value="${order.getId()}" th:name="orderId">
                             <input type="submit" th:value="'Удалить клиента'">
                         </form>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <form th:method="POST" th:action="@{/order/{id}/addGuest(id=${order.getId()})}">
+                        <form th:method="POST" th:action="@{/order/addGuest}">
+                            <input type="hidden" th:value="${order.getId()}" th:name="orderId">
                             <input type="submit" value="Добавить гостя"/>
                         </form>
                     </td>
@@ -119,7 +126,8 @@
     </tr>
 </table>
 <hr>
-<form th:if="${!order.getPayment()}" th:method="POST" th:action="@{/order/{id}/payment(id=${order.getId()})}">
+<form th:if="${!order.getPayment()}" th:method="POST" th:action="@{/order/payment}">
+    <input type="hidden" th:value="${order.getId()}" th:name="orderId">
     <input type="submit" value="Оплатить"/>
 </form>
 <a th:if="${order.getPayment()}" th:text="Оплачено"></a>

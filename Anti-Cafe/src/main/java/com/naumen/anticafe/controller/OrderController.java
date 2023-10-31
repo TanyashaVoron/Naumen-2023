@@ -3,21 +3,14 @@ package com.naumen.anticafe.controller;
 import com.naumen.anticafe.domain.*;
 import com.naumen.anticafe.error.GuestsHaveGoodsException;
 import com.naumen.anticafe.error.NotFoundException;
-import com.naumen.anticafe.service.GameZoneService;
-import com.naumen.anticafe.service.GuestService;
-import com.naumen.anticafe.service.OrderService;
-import com.naumen.anticafe.service.ReserveService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.naumen.anticafe.service.*;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.Year;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,12 +21,13 @@ public class OrderController {
     private final ReserveService reserveService;
     private final GuestService guestService;
     private final GameZoneService gameZoneService;
-
-    public OrderController(OrderService orderService, ReserveService reserveService, GuestService guestService, GameZoneService gameZoneService) {
+    private final EmployeeService employeeService;
+    public OrderController(OrderService orderService, ReserveService reserveService, GuestService guestService, GameZoneService gameZoneService, EmployeeService employeeService) {
         this.orderService = orderService;
         this.reserveService = reserveService;
         this.guestService = guestService;
         this.gameZoneService = gameZoneService;
+        this.employeeService = employeeService;
     }
 
     @GetMapping("/{id}/reserve")
@@ -50,7 +44,12 @@ public class OrderController {
         if (dayMonth != null && gameZoneId != null) {
             Integer[][] freeTimesAndMaxHourReserve= new Integer[0][];
             try {
-                freeTimesAndMaxHourReserve = reserveService.getFreeTimesAndMaxHourReserve(gameZoneId,dayMonth);
+                Order order = orderService.getOrder(orderId);
+                if(!employeeService.isAccessOrder(employee,order)){
+                    return "noAccess";
+                }
+                GameZone gameZone = gameZoneService.getGameZone(gameZoneId);
+                freeTimesAndMaxHourReserve = reserveService.getFreeTimesAndMaxHourReserve(gameZone,dayMonth);
             } catch (NotFoundException e) {
                 model.addAttribute("message",e.getMessage());
                 return "redirect:/order/notFound";
@@ -66,40 +65,49 @@ public class OrderController {
         model.addAttribute("dayOfReserve", dayOfReserve);
         return "order/reserve";
     }
-    @PostMapping("/{id}/reserve/Add")
-    public String addReserve(@PathVariable("id") Long orderId,
+    @PostMapping("/markForDeletion")
+    public String markForDeletion(@ModelAttribute(value = "order")Order order,
+                                  @AuthenticationPrincipal Employee employee){
+        if(!employeeService.isAccessOrder(employee,order)){
+            return "noAccess";
+        }
+        order.setTaggedDelete(true);
+        return "redirect:/";
+    }
+    @PostMapping("/reserve/Add")
+    public String addReserve(@RequestParam("orderId") Long orderId,
                              @ModelAttribute(value = "dayOfMount") String dayOfMount,
                              @ModelAttribute(value = "gameZoneId") Long gameZoneId,
                              @ModelAttribute(value = "freeTime") int freeTime,
                              @ModelAttribute(value = "maxHour") int maxHour,
-                             @ModelAttribute(value = "hour") String hours,
+                             @RequestParam(value = "hour", defaultValue = "0") int hour,
+                             @AuthenticationPrincipal Employee employee,
                              RedirectAttributes redirectAttributes) {
-        if(hours.equals("")){
+        if (maxHour < hour || hour == 0) {
             return "redirect:/order/" + orderId + "/reserve?dayMonth=" + dayOfMount + "&gameZoneId=" + gameZoneId;
         }
-        int hour = Integer.parseInt(hours);
-        if (maxHour < hour || hour <= 0) {
-            return "redirect:/order/" + orderId + "/reserve?dayMonth=" + dayOfMount + "&gameZoneId=" + gameZoneId;
-        }
-        Order order;
         try {
-            order = reserveService.setReserve(orderId,dayOfMount,gameZoneId,freeTime,maxHour,hour);
+            Order order = orderService.getOrder(orderId);
+            if(!employeeService.isAccessOrder(employee,order)){
+                return "noAccess";
+            }
+            reserveService.setReserve(order,dayOfMount,gameZoneId,freeTime,maxHour,hour);
         } catch (NotFoundException e) {
             redirectAttributes.addAttribute("message",e.getMessage());
             return "redirect:/order/notFound";
         }
-        return "redirect:/order/" + order.getId();
+        return "redirect:/order/" + orderId;
     }
     @GetMapping("/{id}")
     public String showOrder(@PathVariable("id") Long orderId,
-                            @AuthenticationPrincipal Employee employeeAut,
+                            @AuthenticationPrincipal Employee employee,
                             @RequestParam(value = "errorGuestId",required = false) Long guestId,
                             @RequestParam(value = "errorGuestMessage",required = false) String message,
                             Model model) {
         Order order;
         List<Guest> guestList;
         List<GuestCart> guestCartList;
-        Optional<Employee> optionalEmployeeAut = Optional.ofNullable(employeeAut);
+        Optional<Employee> optionalEmployee = Optional.ofNullable(employee);
         try {
             order = orderService.getOrder(orderId);
             guestList = guestService.getGuestListByOrder(order);
@@ -112,21 +120,26 @@ public class OrderController {
         Optional<Long> errorGuestId =Optional.ofNullable(guestId);
         model.addAttribute("errorGuestId",errorGuestId);
         model.addAttribute("errorGuestMessage",errorGuestMessage);
-        model.addAttribute("user", optionalEmployeeAut);
+        model.addAttribute("user", optionalEmployee);
         model.addAttribute("order", order);
         model.addAttribute("total", order.getTotal() / 10.0);
         model.addAttribute("guests", guestList);
         model.addAttribute("products", guestCartList);
         return "order/order";
     }
-    @PostMapping("/{id}/deleteGuest")
-    public String deleteGuest(@PathVariable("id") Long orderId,
+    @PostMapping("/deleteGuest")
+    public String deleteGuest(@RequestParam("orderId") Long orderId,
                               @ModelAttribute("guestId")Long guestId,
+                              @AuthenticationPrincipal Employee employee,
                               RedirectAttributes redirectAttributes){
         try{
             Order order = orderService.getOrder(orderId);
+            if(!employeeService.isAccessOrder(employee,order)){
+                return "noAccess";
+            }
             orderService.checkPaymentOrder(order);
-            guestService.deleteGuest(order,guestId);
+            Guest guest = guestService.getGuest(guestId,order);
+            guestService.deleteGuest(guest);
         } catch (NotFoundException e) {
             redirectAttributes.addAttribute("message",e.getMessage());
             return "redirect:/order/notFound";
@@ -137,27 +150,34 @@ public class OrderController {
         }
         return "redirect:/order/"+orderId;
     }
-    @PostMapping("/{id}/deleteReserve")
-    public String deleteReserve(@PathVariable("id") Long orderId,RedirectAttributes redirectAttributes){
-        Order order;
+    @PostMapping("/deleteReserve")
+    public String deleteReserve(@RequestParam("orderId") Long orderId,
+                                @AuthenticationPrincipal Employee employee,
+                                RedirectAttributes redirectAttributes){
         try {
-            order = reserveService.deleteReserve(orderId);
+            Order order = orderService.getOrder(orderId);
+            if(!employeeService.isAccessOrder(employee,order)){
+                return "noAccess";
+            }
+            reserveService.deleteReserve(order);
         } catch (NotFoundException e) {
             redirectAttributes.addAttribute("message",e.getMessage());
             return "redirect:/order/notFound";
         }
-        return "redirect:/order/" + order.getId();
+        return "redirect:/order/" + orderId;
     }
     @GetMapping("/notFound")
     public String notFound(@RequestParam("message")String message,Model model){
         model.addAttribute("message",message);
         return "order/notFound";
     }
-    @PostMapping("/{id}/addGuest")
-    public String addGuest(@PathVariable("id") Long orderId, RedirectAttributes redirectAttributes) {
-
+    @PostMapping("/addGuest")
+    public String addGuest(@RequestParam("orderId") Long orderId, RedirectAttributes redirectAttributes,@AuthenticationPrincipal Employee employee){
         try {
             Order order = orderService.getOrder(orderId);
+            if(!employeeService.isAccessOrder(employee,order)){
+                return "noAccess";
+            }
             orderService.checkPaymentOrder(order);
             guestService.addGuest(order);
         } catch (NotFoundException e) {
@@ -166,10 +186,11 @@ public class OrderController {
         }
         return "redirect:/order/" + orderId;
     }
-    @PostMapping("/{id}/payment")
-    public String payment(@PathVariable("id") Long orderId,RedirectAttributes redirectAttributes) {
+    @PostMapping("/payment")
+    public String payment(@RequestParam("orderId") Long orderId,RedirectAttributes redirectAttributes) {
         try {
-            orderService.payment(orderId);
+            Order order = orderService.getOrder(orderId);
+            orderService.payment(order);
         } catch (NotFoundException e) {
             redirectAttributes.addAttribute("message",e.getMessage());
             return "redirect:/order/notFound";

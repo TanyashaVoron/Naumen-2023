@@ -10,8 +10,9 @@ import java.util.List;
 
 public interface GuestService {
     void addGuest(Order order) throws NotFoundException;
-    void deleteGuest(Order order, Long guestId) throws NotFoundException, GuestsHaveGoodsException;
+    void deleteGuest(Guest guest)throws GuestsHaveGoodsException;
     List<Guest> getGuestListByOrder(Order order);
     List<GuestCart> getGuestCartListByGuest(List<Guest> guestList);
     List<GuestCart> getProductGuest(Guest guest);
+    Guest getGuest(Long guestId, Order order) throws NotFoundException;
 }

@@ -20,13 +20,11 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final GuestService guestService;
 
-    private final GameZoneService gameZoneService;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, GuestService guestService, GameZoneService gameZoneService) {
+    public OrderServiceImpl(OrderRepository orderRepository, GuestService guestService) {
         this.orderRepository = orderRepository;
         this.guestService = guestService;
-        this.gameZoneService = gameZoneService;
     }
 
     @Override
@@ -40,9 +38,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void payment(Long orderId) throws NotFoundException {
-        //получает заказ
-        Order order = getOrder(orderId);
+    public void payment(Order order) throws NotFoundException {
         //проверяет оплату заказа, если заказ оплачен пробрасывает ошибку
         checkPaymentOrder(order);
         //посчитывает итоговую сумму
@@ -62,15 +58,11 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
     public List<Order> getOrderByIdOrGameZoneOrPayment(Long orderId,
-                                                       Long gameZoneId,
+                                                       GameZone gameZone,
                                                        Boolean payment,
                                                        LocalDate reserveDate,
                                                        Employee employee) throws NotFoundException {
         //выдает список заказов по указаным полям
-        GameZone gameZone = null;
-        if(gameZoneId!=null) {
-            gameZone = gameZoneService.getGameZone(gameZoneId);
-        }
         List<Order> orders = orderRepository
                 .findAllByIdAndGameZoneAndPaymentAndReserveDateAndManagerAndTaggedDelete(
                         orderId,
@@ -82,8 +74,8 @@ public class OrderServiceImpl implements OrderService {
                 );
         return orders;
     }
-    public Order save(Order order){
-        return orderRepository.save(order);
+    public void save(Order order){
+        orderRepository.save(order);
     }
     public void calculateTotal(Order order){
         //список всех гостей

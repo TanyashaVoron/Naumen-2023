@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить сотрудника</title>
+</head>
+<body>
+<form th:method="GET" th:action="@{/static}">
+    <button type="submit">Главная страница</button>
+</form>
+<form th:method="POST" th:action="@{/templates/employee/add}">
+    <table>
+        <tr>
+            <td>
+                <label for="name">Имя</label>
+            </td>
+            <td>
+                <div th:if="${nameError.isPresent()}">
+                    <a th:text="${nameError.get()}" style="color:#FF0000"></a>
+                </div>
+                <input type="text" name="name" id="name"><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="username">Имя пользователя</label>
+            </td>
+            <td>
+                <div th:if="${usernameError.isPresent()}">
+                    <a th:text="${usernameError.get()}" style="color:#FF0000"></a>
+                </div>
+                <input type="text" name="username" id="username"><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="password">Пароль</label>
+            </td>
+            <td>
+                <div th:if="${passwordError.isPresent()}">
+                    <a th:text="${passwordError.get()}" style="color:#FF0000"></a>
+                </div>
+                <input type="password" name="password" id="password"><br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="role">Роль</label>
+            </td>
+            <td>
+                <label>
+                    <select th:name="roleId" id="role">
+                        <option th:each="role:${roles}" th:value="${role.getId()}" th:text="${role.getRole()}"></option>
+                    </select>
+                </label>
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Добавить">
+</form>
+<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+</body>
+</html>

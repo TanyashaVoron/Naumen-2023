@@ -8,7 +8,7 @@
 <form th:if="${user.isEmpty()}" th:method="GET" th:action="@{/login}"><button type="submit">Войти</button> </form>
 <form th:if="${user.isPresent()}" th:method="POST" th:action="@{/logout}"><button type="submit">Выйти</button> </form>
 <form th:method="GET" th:action="@{/report}"><button type="submit">Отчет</button> </form>
-<form th:method="GET" th:action="@{/addEmployee}"><button type="submit">Добавить пользователя</button> </form>
+<form th:method="GET" th:action="@{/employee}"><button type="submit">Управление пользователями</button> </form>
 <form th:method="GET" th:action="@{/product}"><button type="submit">Товары</button> </form>
 <form th:method="GET" th:action="@{/gamezone}"><button type="submit">Игровые зоны</button> </form>
 <form th:method="POST" th:action="@{/order/create}"><button type="submit">Создать заказ</button> </form>

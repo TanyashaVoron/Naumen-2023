@@ -40,14 +40,12 @@ public class ReserveServiceImpl implements ReserveService {
         return dayOfReserveList;
     }
     @Override
-    public Order setReserve(Long orderId,
+    public void setReserve(Order order,
                             String dayOfMount,
                             Long gameZoneId,
                             int freeTime,
                             int maxHour,
                             int hour) throws NotFoundException {
-
-        Order order = orderService.getOrder(orderId);
         orderService.checkPaymentOrder(order);
         GameZone gameZone = gameZoneService.getGameZone(gameZoneId);
         //создаем переменную даты
@@ -63,24 +61,20 @@ public class ReserveServiceImpl implements ReserveService {
         order.setEndReserve(reserveEnd);
         orderService.calculateTotal(order);
         orderService.save(order);
-        return order;
     }
     @Override
-    public Order deleteReserve(Long orderId) throws NotFoundException {
-        Order order = orderService.getOrder(orderId);
+    public void deleteReserve(Order order) throws NotFoundException {
         orderService.checkPaymentOrder(order);
         order.setGameZone(null);
         order.setReserveDate(null);
         order.setReserveTime(null);
         order.setEndReserve(null);
         orderService.save(order);
-        return order;
     }
 
 
     @Override
-    public Integer[][] getFreeTimesAndMaxHourReserve(Long gameZoneId, String dayMonth) throws NotFoundException {
-        GameZone gameZone = gameZoneService.getGameZone(gameZoneId);
+    public Integer[][] getFreeTimesAndMaxHourReserve(GameZone gameZone, String dayMonth) throws NotFoundException {
         //разделяем день и месяц
         String[] dayAndMonth = dayMonth.split("\\.");
         //создаем переменную даты и дня

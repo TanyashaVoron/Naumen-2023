@@ -34,8 +34,11 @@ public class AntiCafeApplication {
             Role role1 = new Role();
             role1.setRole("ROLE_ADMIN");
             roleRepository.save(role1);
+            Role role3 = new Role();
+            role1.setRole("ROLE_GENERAL_MANAGER");
+            roleRepository.save(role1);
             Role role2 = new Role();
-            role2.setRole("ROLE_USER");
+            role2.setRole("ROLE_MANAGER");
             roleRepository.save(role2);
             Employee employee = new Employee();
             employee.setName("Piter p.");
@@ -45,9 +48,6 @@ public class AntiCafeApplication {
             set.add(role1);
             employee.setRole(set);
             employee.setEnabled(true);
-            employee.setAccountNonLocked(true);
-            employee.setAccountNonExpired(true);
-            employee.setCredentialsNonExpired(true);
             employeeRepository.save(employee);
             Employee employee1 = new Employee();
             employee1.setName("Jon Sina");
@@ -57,9 +57,6 @@ public class AntiCafeApplication {
             set1.add(role2);
             employee1.setRole(set1);
             employee1.setEnabled(true);
-            employee1.setAccountNonLocked(true);
-            employee1.setAccountNonExpired(true);
-            employee1.setCredentialsNonExpired(true);
             employeeRepository.save(employee1);
             GameZone gameZone = new GameZone();
             gameZone.setName("a");

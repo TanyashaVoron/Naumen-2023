@@ -1,6 +1,7 @@
 package com.naumen.anticafe.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,12 +24,22 @@ public class Employee implements UserDetails {
     private String username;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> role;
-    private boolean accountNonExpired;
-    private boolean accountNonLocked;
-    private boolean credentialsNonExpired;
+
     private boolean enabled;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role;
+    }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 }

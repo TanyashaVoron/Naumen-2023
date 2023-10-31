@@ -1,9 +1,11 @@
 package com.naumen.anticafe.controller;
 
 import com.naumen.anticafe.domain.Employee;
+import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;
 import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.service.EmployeeService;
+import com.naumen.anticafe.service.GameZoneService;
 import com.naumen.anticafe.service.OrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +26,12 @@ public class SearchController {
 
     private final OrderService orderService;
     private final EmployeeService employeeService;
+    private final GameZoneService gameZoneService;
     @Autowired
-    public SearchController(OrderService orderService, EmployeeService employeeService) {
+    public SearchController(OrderService orderService, EmployeeService employeeService, GameZoneService gameZoneService) {
         this.orderService = orderService;
         this.employeeService = employeeService;
+        this.gameZoneService = gameZoneService;
     }
 
     @GetMapping()
@@ -41,7 +45,9 @@ public class SearchController {
         List<Employee> employeeList = employeeService.getEmployeeList();
         List<Order> orders;
         try {
-            orders = orderService.getOrderByIdOrGameZoneOrPayment(orderId,gameZoneId,payment,reserveDate,employeeSearch);
+            GameZone gameZone = null;
+            if(gameZoneId != null) gameZone = gameZoneService.getGameZone(gameZoneId);
+            orders = orderService.getOrderByIdOrGameZoneOrPayment(orderId,gameZone,payment,reserveDate,employeeSearch);
         } catch (NotFoundException e) {
             model.addAttribute("message",e.getMessage());
             return "redirect:/order/notFound";

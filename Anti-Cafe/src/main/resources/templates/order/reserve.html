@@ -17,6 +17,7 @@
     </label>
     <input type="submit" value="Найти"/>
 </form>
+
 <table>
     <tr>
         <th>Свободное<br/>время</th>
@@ -31,13 +32,14 @@
             <a th:text="${freeTime[1]} + 'ч.'"></a>
         </td>
         <td>
-            <form th:method="POST" th:action="@{/order/{id}/reserve/Add(id=${orderId})}">
+            <form th:method="POST" th:action="@{/order/reserve/Add}">
                 <label th:for="hour"></label>
                 <input th:type="hidden" th:value="${dayMonth}" th:name="dayOfMount">
                 <input th:type="hidden" th:value="${gameZoneId}" th:name="gameZoneId">
                 <input th:type="hidden" th:value="${freeTime[0]}" th:name="freeTime">
                 <input th:type="hidden" th:value="${freeTime[1]}" th:name="maxHour">
-                <input type="number" th:name="hour" th:id="hour"/>
+                <input th:type="hidden" th:value="${orderId}" th:name="orderId">
+                <input type="number" th:name="hour"  th:id="hour"/>
                 <input type="submit" th:value="Зарезервировать">
             </form>
         </td>

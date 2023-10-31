@@ -28,7 +28,6 @@ public class GuestServiceImpl implements GuestService {
         this.guestCartRepository = guestCartRepository;
         this.guestRepository = guestRepository;
     }
-
     @Override
     public List<GuestCart> getGuestCartListByGuest(List<Guest> guestList){
         List<GuestCart> guestCartList = new ArrayList<>();
@@ -42,8 +41,7 @@ public class GuestServiceImpl implements GuestService {
         return guestRepository.findAllByCompositeIdOrder(order);
     }
     @Override
-    public void deleteGuest(Order order, Long guestId) throws NotFoundException, GuestsHaveGoodsException {
-        Guest guest = getGuest(guestId,order);
+    public void deleteGuest(Guest guest)throws GuestsHaveGoodsException {
         //проверяет есть ли у гостя товары
         checkProductGuest(guest);
         guestRepository.delete(guest);
