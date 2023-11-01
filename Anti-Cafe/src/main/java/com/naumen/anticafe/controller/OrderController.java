@@ -66,12 +66,21 @@ public class OrderController {
         return "order/reserve";
     }
     @PostMapping("/markForDeletion")
-    public String markForDeletion(@ModelAttribute(value = "order")Order order,
-                                  @AuthenticationPrincipal Employee employee){
+    public String markForDeletion(@RequestParam("orderId") Long orderId,
+                                  @AuthenticationPrincipal Employee employee,
+                                  RedirectAttributes redirectAttributes){
+        Order order = null;
+        try {
+            order = orderService.getOrder(orderId);
+        } catch (NotFoundException e) {
+            redirectAttributes.addAttribute("message",e.getMessage());
+            return "redirect:/order/notFound";
+        }
         if(!employeeService.isAccessOrder(employee,order)){
             return "noAccess";
         }
         order.setTaggedDelete(true);
+        orderService.save(order);
         return "redirect:/";
     }
     @PostMapping("/reserve/Add")

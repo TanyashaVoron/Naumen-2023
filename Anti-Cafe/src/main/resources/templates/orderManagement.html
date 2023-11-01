@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск</title>
+</head>
+<body>
+<form th:method="GET" th:action="@{/}">
+    <button type="submit">Главная страница</button>
+</form>
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+<form th:method="GET" th:action="@{/orderManagment}">
+    <label for="pay">Укажите статус: </label>
+    <select th:name="payment" id="pay">
+        <option th:value="${null}" th:text="'Все'"></option>
+        <option th:value="${true}" th:text="'Оплаченные'"></option>
+        <option th:value="${false}" th:text="'Не оплаченные'"></option>
+    </select>
+    <label for="employee">Укажите сотрудника: </label>
+    <select th:name="employee" id="employee">
+        <option th:value="${null}" th:text="'Все'"></option>
+        <option th:each="employee:${employees}" th:value="${employee}" th:text="${employee.getName()}"></option>
+    </select>
+    <label for="day">Введите день резерва</label>
+    <input type="date" th:name="date" id="day">
+    <br/>
+    <label for="orderId">Введите номер заказа</label>
+    <input type="text" th:name="orderId" id="orderId" placeholder="Номер заказа">
+    <label for="gameZoneId">Введите игровую зону</label>
+    <input type="text" th:name="gameZoneId" id="gameZoneId" placeholder="Номер зоны">
+    <input type="submit" value="Найти!"/>
+</form>
+<a th:href="@{/orderManagment}" th:text="'Сбросить'"></a>
+<table>
+    <tr>
+        <th>Номер заказа</th>
+        <th>Игровая зона</th>
+        <th>Дата резерва</th>
+        <th>Время резерва</th>
+        <th>Резерв до</th>
+        <th>Официант</th>
+        <th>Статус оплаты</th>
+        <th>Итог</th>
+        <th>Действия</th>
+    </tr>
+    <tr th:each="order : ${orders}">
+        <td>
+            <a th:text="${order.getId()}"/>
+        </td>
+        <td>
+
+            <a th:if="${order.getGameZone()!=null}"
+               th:text="${order.getGameZone().getId()}+':'+${order.getGameZone().getName()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getReserveDate()!=null}"
+               th:text="${order.getReserveDate().getDayOfMonth()}+'.'+${order.getReserveDate().getMonthValue()} + '.'+ ${order.getReserveDate().getYear()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getReserveTime()!=null}"
+               th:text="${order.getReserveTime().getHour()}+':'+${order.getReserveTime().getMinute()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getEndReserve()!=null}"
+               th:text="${order.getEndReserve().getHour()}+':'+${order.getEndReserve().getMinute()}"/>
+        </td>
+        <td>
+            <a th:if="${order.getManager()!=null}" th:text="${order.getManager().getName()}"></a>
+        </td>
+        <td>
+            <a th:if="${order.getPayment()}" th:text="'Оплачено'"></a>
+            <a th:if="${!order.getPayment()}" th:text="'Не оплачено'"></a>
+        </td>
+        <td>
+            <a th:text="${order.getTotal()}"></a>
+        </td>
+        <td>
+            <form th:method="POST" th:action="@{/orderManagement/restore}">
+                <input type="hidden" th:name="orderId" th:value="${order.getId()}">
+                <input type="submit" th:value="Востановить">
+            </form>
+            <form th:method="POST" th:action="@{/orderManagement/delete}">
+                <input type="hidden" th:name="orderId" th:value="${order.getId()}">
+                <input type="submit" th:value="Удалить">
+            </form>
+        </td>
+    </tr>
+</table>
+<br/>
+<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+</body>
+</html>

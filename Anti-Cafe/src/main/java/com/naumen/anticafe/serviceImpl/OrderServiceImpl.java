@@ -61,7 +61,8 @@ public class OrderServiceImpl implements OrderService {
                                                        GameZone gameZone,
                                                        Boolean payment,
                                                        LocalDate reserveDate,
-                                                       Employee employee) throws NotFoundException {
+                                                       Employee employee,
+                                                       boolean isTagged) throws NotFoundException {
         //выдает список заказов по указаным полям
         List<Order> orders = orderRepository
                 .findAllByIdAndGameZoneAndPaymentAndReserveDateAndManagerAndTaggedDelete(
@@ -70,9 +71,18 @@ public class OrderServiceImpl implements OrderService {
                         payment,
                         reserveDate,
                         employee,
-                        false
+                        isTagged
                 );
         return orders;
+    }
+    public void deleteOrder(Order order) throws NotFoundException {
+        checkPaymentOrder(order);
+        List<Guest> guestList = guestService.getGuestListByOrder(order);
+        for (Guest g:guestList){
+            guestService.deleteGuestWithCart(g);
+        }
+        orderRepository.delete(order);
+
     }
     public void save(Order order){
         orderRepository.save(order);

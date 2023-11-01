@@ -15,10 +15,12 @@ public interface OrderService {
     void calculateTotal(Order order);
     void save(Order order);
     List<Order> getOrderByGameZoneAndReserveDate(GameZone gameZone, LocalDate localDate);
+    void deleteOrder(Order order) throws NotFoundException;
     List<Order> getOrderByIdOrGameZoneOrPayment(Long orderId,
                                                 GameZone gameZone,
                                                 Boolean payment,
                                                 LocalDate reserveDate,
-                                                Employee employee) throws NotFoundException ;
+                                                Employee employee,
+                                                boolean isTagged) throws NotFoundException ;
     void checkPaymentOrder(Order order) throws NotFoundException;
 }

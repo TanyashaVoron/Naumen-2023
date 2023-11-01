@@ -46,6 +46,11 @@ public class GuestServiceImpl implements GuestService {
         checkProductGuest(guest);
         guestRepository.delete(guest);
     }
+    public void deleteGuestWithCart(Guest guest){
+        List<GuestCart> guestCartList = guestCartRepository.findAllByGuest(guest);
+        guestCartRepository.deleteAll(guestCartList);
+        guestRepository.delete(guest);
+    }
     private void checkProductGuest(Guest guest) throws GuestsHaveGoodsException {
         long countGuestCart = guestCartRepository.countByGuest(guest);
         if(countGuestCart!=0) throw new GuestsHaveGoodsException("У гостя есть товары",guest.getCompositeId().getGuestId());

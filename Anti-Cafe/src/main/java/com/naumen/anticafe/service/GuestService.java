@@ -14,5 +14,6 @@ public interface GuestService {
     List<Guest> getGuestListByOrder(Order order);
     List<GuestCart> getGuestCartListByGuest(List<Guest> guestList);
     List<GuestCart> getProductGuest(Guest guest);
+    void deleteGuestWithCart(Guest guest);
     Guest getGuest(Long guestId, Order order) throws NotFoundException;
 }
