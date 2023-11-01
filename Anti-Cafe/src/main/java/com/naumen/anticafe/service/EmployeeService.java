@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 public interface EmployeeService {
-    void saveEmployee(RegistrationValidation registrationValidation) throws NotFoundException;
+    boolean saveEmployee(RegistrationValidation registrationValidation) throws NotFoundException;
     void saveEmployee(Employee employee);
     List<Role> getAllRole();
-    List<Employee> getEmployeeList();
+    List<Employee> getEmployeeList(boolean enabled);
     boolean isAccessOrder(Employee employeeNow, Order order);
     Employee getEmployee(Long employeeId) throws NotFoundException;
     List<Employee> getEmployeeUsernameContains(String username);

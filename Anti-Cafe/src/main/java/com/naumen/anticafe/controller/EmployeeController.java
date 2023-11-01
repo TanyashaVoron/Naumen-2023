@@ -44,7 +44,8 @@ public class EmployeeController {
                                @AuthenticationPrincipal Employee employee,Model model){
         List<Employee> employees;
         if(username!=null&&!username.equals("")) employees = employeeService.getEmployeeUsernameContains(username);
-        else  employees = employeeService.getEmployeeList();
+       else  {employees = employeeService.getEmployeeList(true);
+        employees.addAll(employeeService.getEmployeeList(false));}
         model.addAttribute("employees",employees);
         model.addAttribute("user",Optional.ofNullable(employee));
         return "employee/employee";
@@ -83,10 +84,13 @@ public class EmployeeController {
             {
                 redirectAttributes.addAttribute(fe.getField()+ "Error",fe.getDefaultMessage());
             }
-            return "redirect:/Employee/add";
+            return "redirect:/employee/add";
         }
         try {
-            employeeService.saveEmployee(registrationValidation);
+            if(!employeeService.saveEmployee(registrationValidation)) {
+                redirectAttributes.addAttribute( "usernameError", "Пользователь уже существует");
+                return "redirect:/employee/add";
+            }
         } catch (NotFoundException e) {
             redirectAttributes.addAttribute("message", e.getMessage());
             return "redirect:/order/notFound";

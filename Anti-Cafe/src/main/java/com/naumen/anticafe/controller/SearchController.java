@@ -42,7 +42,7 @@ public class SearchController {
                              @RequestParam(value = "date",required = false) LocalDate reserveDate,
                              @RequestParam(value = "employee",required = false) Employee employeeSearch,
                              @AuthenticationPrincipal Employee employee) {
-        List<Employee> employeeList = employeeService.getEmployeeList();
+        List<Employee> employeeList = employeeService.getEmployeeList(true);
         List<Order> orders;
         try {
             GameZone gameZone = null;

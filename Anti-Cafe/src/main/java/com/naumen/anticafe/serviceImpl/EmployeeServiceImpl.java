@@ -30,8 +30,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    public List<Employee> getEmployeeList(){
-        return employeeRepository.findAll();
+    public List<Employee> getEmployeeList(boolean enabled){
+        return employeeRepository.findAllByEnabled(enabled);
     }
     public void saveEmployee(Employee employee){
         employeeRepository.save(employee);
@@ -69,12 +69,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setName(registrationValidation.getName());
         employeeRepository.save(employee);
     }
-    public void saveEmployee(RegistrationValidation registrationValidation) throws NotFoundException {
+    public boolean saveEmployee(RegistrationValidation registrationValidation) throws NotFoundException {
+        if(employeeRepository.findByUsername(registrationValidation.getUsername())!=null) return false;
         Role role = getRole(registrationValidation.getRoleId());
         Employee employee = registrationValidation.toEmployee(passwordEncoder,role);
         employeeRepository.save(employee);
+        return true;
     }
     public List<Employee> getEmployeeUsernameContains(String username){
-        return employeeRepository.findByUsernameContainsOrderByEnabled(username);
+        return employeeRepository.findByUsernameContainsOrderByEnabledDesc(username);
     }
 }

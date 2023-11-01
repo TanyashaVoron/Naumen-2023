@@ -36,7 +36,7 @@ public class AntiCafeApplication {
             roleRepository.save(role1);
             Role role3 = new Role();
             role1.setRole("ROLE_GENERAL_MANAGER");
-            roleRepository.save(role1);
+            roleRepository.save(role3);
             Role role2 = new Role();
             role2.setRole("ROLE_MANAGER");
             roleRepository.save(role2);

@@ -9,7 +9,7 @@
     <button type="submit">Главная страница</button>
 </form>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-<form th:method="GET" th:action="@{/orderManagment}">
+<form th:method="GET" th:action="@{/orderManagement}">
     <label for="pay">Укажите статус: </label>
     <select th:name="payment" id="pay">
         <option th:value="${null}" th:text="'Все'"></option>
@@ -30,7 +30,7 @@
     <input type="text" th:name="gameZoneId" id="gameZoneId" placeholder="Номер зоны">
     <input type="submit" value="Найти!"/>
 </form>
-<a th:href="@{/orderManagment}" th:text="'Сбросить'"></a>
+<a th:href="@{/orderManagement}" th:text="'Сбросить'"></a>
 <table>
     <tr>
         <th>Номер заказа</th>

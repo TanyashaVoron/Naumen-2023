@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface EmployeeRepository extends CrudRepository<Employee, Long> {
     Employee findByUsername(String username);
-    List<Employee> findAll();
-    List<Employee> findByUsernameContainsOrderByEnabled(String username);
+    List<Employee> findAllByEnabled(boolean enabled);
+    List<Employee> findByUsernameContainsOrderByEnabledDesc(String username);
 }
