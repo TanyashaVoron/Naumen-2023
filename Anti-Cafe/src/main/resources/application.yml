@@ -3,4 +3,9 @@ spring:
     generate-unique-name: false
     name: AntiCafe
 
-    
+
+reserve:
+  service:
+    daysToReserve: 7
+    openingHour: 9
+    closingHour: 24

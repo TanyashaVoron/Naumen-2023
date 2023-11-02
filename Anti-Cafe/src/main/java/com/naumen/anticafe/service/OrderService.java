@@ -1,9 +1,9 @@
 package com.naumen.anticafe.service;
 
-import com.naumen.anticafe.domain.*;
-import com.naumen.anticafe.error.GuestsHaveGoodsException;
+import com.naumen.anticafe.domain.Employee;
+import com.naumen.anticafe.domain.GameZone;
+import com.naumen.anticafe.domain.Order;
 import com.naumen.anticafe.error.NotFoundException;
-import org.springframework.ui.Model;
 
 import java.time.LocalDate;
 import java.util.List;

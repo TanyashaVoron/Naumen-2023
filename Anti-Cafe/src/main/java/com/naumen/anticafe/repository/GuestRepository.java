@@ -10,6 +10,5 @@ import java.util.Optional;
 
 public interface GuestRepository  extends CrudRepository<Guest, GuestId> {
     List<Guest> findAllByCompositeIdOrder(Order order);
-    long countByCompositeIdOrder(Order order);
     Optional<Guest> findTopByCompositeIdOrderOrderByCompositeIdDesc(Order order);
 }

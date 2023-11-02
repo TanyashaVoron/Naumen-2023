@@ -30,7 +30,6 @@ public class GuestId implements Serializable {
         return Objects.equals(getGuestId(), other.getGuestId()) &&
                 Objects.equals(getOrder(), other.getOrder());
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(getGuestId(), getOrder());

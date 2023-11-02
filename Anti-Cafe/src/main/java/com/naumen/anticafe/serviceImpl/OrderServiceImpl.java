@@ -3,8 +3,6 @@ package com.naumen.anticafe.serviceImpl;
 import com.naumen.anticafe.domain.*;
 import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.repository.OrderRepository;
-import com.naumen.anticafe.service.EmployeeService;
-import com.naumen.anticafe.service.GameZoneService;
 import com.naumen.anticafe.service.GuestService;
 import com.naumen.anticafe.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +31,9 @@ public class OrderServiceImpl implements OrderService {
         if (optionalOrder.isEmpty()) throw new NotFoundException("Заказ не найден");
         return optionalOrder.get();
     }
+
     public void checkPaymentOrder(Order order) throws NotFoundException {
-        if(order.getPayment()) throw new NotFoundException("Заказ уже оплачен");
+        if (order.getPayment()) throw new NotFoundException("Заказ уже оплачен");
     }
 
     @Override
@@ -47,8 +46,9 @@ public class OrderServiceImpl implements OrderService {
         order.setPayment(true);
         orderRepository.save(order);
     }
+
     @Override
-    public Order createOrder(Employee employee){
+    public Order createOrder(Employee employee) {
         Order order = new Order();
         order.setManager(employee);
         order.setDate(LocalDate.now());
@@ -57,14 +57,15 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         return order;
     }
+
     public List<Order> getOrderByIdOrGameZoneOrPayment(Long orderId,
                                                        GameZone gameZone,
                                                        Boolean payment,
                                                        LocalDate reserveDate,
                                                        Employee employee,
-                                                       boolean isTagged) throws NotFoundException {
-        //выдает список заказов по указаным полям
-        List<Order> orders = orderRepository
+                                                       boolean isTagged){
+        //выдает список заказов по указанным полям
+        return orderRepository
                 .findAllByIdAndGameZoneAndPaymentAndReserveDateAndManagerAndTaggedDelete(
                         orderId,
                         gameZone,
@@ -73,21 +74,24 @@ public class OrderServiceImpl implements OrderService {
                         employee,
                         isTagged
                 );
-        return orders;
     }
+
     public void deleteOrder(Order order) throws NotFoundException {
         checkPaymentOrder(order);
+        //удаляет заказ с его гостями и товарами
         List<Guest> guestList = guestService.getGuestListByOrder(order);
-        for (Guest g:guestList){
+        for (Guest g : guestList) {
             guestService.deleteGuestWithCart(g);
         }
         orderRepository.delete(order);
 
     }
-    public void save(Order order){
+
+    public void save(Order order) {
         orderRepository.save(order);
     }
-    public void calculateTotal(Order order){
+
+    public void calculateTotal(Order order) {
         //список всех гостей
         List<Guest> guestList = guestService.getGuestListByOrder(order);
         //список всех товаров гостей
@@ -104,7 +108,8 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setTotal(total);
     }
-    public List<Order> getOrderByGameZoneAndReserveDate(GameZone gameZone,LocalDate localDate){
+
+    public List<Order> getOrderByGameZoneAndReserveDate(GameZone gameZone, LocalDate localDate) {
         return orderRepository.findAllByGameZoneAndReserveDateOrderByReserveDate(gameZone, localDate);
     }
 }

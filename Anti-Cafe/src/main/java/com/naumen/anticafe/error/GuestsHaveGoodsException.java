@@ -1,6 +1,5 @@
 package com.naumen.anticafe.error;
 
-import com.naumen.anticafe.domain.Guest;
 import lombok.Getter;
 
 @Getter

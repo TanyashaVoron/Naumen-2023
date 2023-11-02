@@ -5,7 +5,6 @@ import com.naumen.anticafe.domain.Order;
 import com.naumen.anticafe.domain.Role;
 import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.validation.RegistrationValidation;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

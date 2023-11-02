@@ -5,7 +5,6 @@ import com.naumen.anticafe.domain.Role;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashSet;
 import java.util.Set;

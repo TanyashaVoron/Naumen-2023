@@ -24,61 +24,68 @@ public class OrderManagementController {
     private final OrderService orderService;
     private final EmployeeService employeeService;
     private final GameZoneService gameZoneService;
+
     @Autowired
-    public OrderManagementController(OrderService orderService, EmployeeService employeeService, GameZoneService gameZoneService) {
+    public OrderManagementController(OrderService orderService,
+                                     EmployeeService employeeService,
+                                     GameZoneService gameZoneService) {
         this.orderService = orderService;
         this.employeeService = employeeService;
         this.gameZoneService = gameZoneService;
     }
+
     @GetMapping()
     public String showOrderManagement(Model model,
-                             @RequestParam(value = "orderId",required = false) Long orderId,
-                             @RequestParam(value = "gameZoneId", required = false) Long gameZoneId,
-                             @RequestParam(value = "payment",required = false) Boolean payment,
-                             @RequestParam(value = "date",required = false) LocalDate reserveDate,
-                             @RequestParam(value = "employee",required = false) Employee employeeSearch,
-                             @AuthenticationPrincipal Employee employee) {
-        List<Employee> employeeList = employeeService.getEmployeeList(true);
-        List<Order> orders;
+                                      @RequestParam(value = "orderId", required = false) Long orderId,
+                                      @RequestParam(value = "gameZoneId", required = false) Long gameZoneId,
+                                      @RequestParam(value = "payment", required = false) Boolean payment,
+                                      @RequestParam(value = "date", required = false) LocalDate reserveDate,
+                                      @RequestParam(value = "employee", required = false) Employee employeeSearch,
+                                      @AuthenticationPrincipal Employee employee) {
         try {
+            List<Employee> employeeList = employeeService.getEmployeeList(true);
             GameZone gameZone = null;
-            if(gameZoneId != null) gameZone = gameZoneService.getGameZone(gameZoneId);
-            orders = orderService.getOrderByIdOrGameZoneOrPayment(orderId,gameZone,payment,reserveDate,employeeSearch,true);
+            if (gameZoneId != null) gameZone = gameZoneService.getGameZone(gameZoneId);
+            List<Order> orders = orderService
+                    .getOrderByIdOrGameZoneOrPayment(
+                            orderId,
+                            gameZone,
+                            payment,
+                            reserveDate,
+                            employeeSearch,
+                            true);
+            model.addAttribute("user", Optional.ofNullable(employee));
+            model.addAttribute("orders", orders);
+            model.addAttribute("employees", employeeList);
+            return "orderManagement";
         } catch (NotFoundException e) {
-            model.addAttribute("message",e.getMessage());
+            model.addAttribute("message", e.getMessage());
             return "redirect:/order/notFound";
         }
-        Optional<Employee> optionalEmployee = Optional.ofNullable(employee);
-        model.addAttribute("user",optionalEmployee);
-        //добавляет в модель список найденных заказов если они есть
-        model.addAttribute("orders",orders);
-        model.addAttribute("employees",employeeList);
-        return "orderManagement";
     }
-    @PostMapping("/delete")
-    public String deleteOrder(@ModelAttribute("orderId")Long orderId, RedirectAttributes redirectAttributes){
-        Order order = null;
-        try {
-            order = orderService.getOrder(orderId);
-            orderService.deleteOrder(order);
-        } catch (NotFoundException e) {
-            redirectAttributes.addAttribute("message",e.getMessage());
-            return "redirect:/order/notFound";
-        }
 
-        return "redirect:/orderManagement";
-    }
-    @PostMapping("/restore")
-    public String restoreOrder(@ModelAttribute("orderId")Long orderId, RedirectAttributes redirectAttributes){
-        Order order = null;
+    @PostMapping("/delete")
+    public String deleteOrder(@ModelAttribute("orderId") Long orderId, RedirectAttributes redirectAttributes) {
         try {
-            order = orderService.getOrder(orderId);
+            Order order = orderService.getOrder(orderId);
+            orderService.deleteOrder(order);
+            return "redirect:/orderManagement";
         } catch (NotFoundException e) {
-            redirectAttributes.addAttribute("message",e.getMessage());
+            redirectAttributes.addAttribute("message", e.getMessage());
             return "redirect:/order/notFound";
         }
-        order.setTaggedDelete(false);
-        orderService.save(order);
-        return "redirect:/orderManagement";
+    }
+
+    @PostMapping("/restore")
+    public String restoreOrder(@ModelAttribute("orderId") Long orderId, RedirectAttributes redirectAttributes) {
+        try {
+            Order order = orderService.getOrder(orderId);
+            order.setTaggedDelete(false);
+            orderService.save(order);
+            return "redirect:/orderManagement";
+        } catch (NotFoundException e) {
+            redirectAttributes.addAttribute("message", e.getMessage());
+            return "redirect:/order/notFound";
+        }
     }
 }

@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "reserve.service.daysToReserve",
+      "type": "java.lang.String",
+      "description": "Указывает количество дней для резерва от 1 до 30 reserve.service.daysToReserve."
+    },
+    {
+      "name": "reserve.service.openingHour",
+      "type": "java.lang.String",
+      "description": "Указывает время для открытия от 0 до 23 reserve.service.daysToReserve."
+    },
+    {
+      "name": "reserve.service.closingHour",
+      "type": "java.lang.String",
+      "description": "Указывает время закрытия от 1 до 24 reserve.service.daysToReserve."
+    }
+  ]
+}

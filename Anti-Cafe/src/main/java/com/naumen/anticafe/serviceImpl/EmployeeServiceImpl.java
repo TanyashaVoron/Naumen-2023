@@ -22,6 +22,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+
     @Autowired
     public EmployeeServiceImpl(EmployeeRepository employeeRepository,
                                RoleRepository roleRepository,
@@ -30,36 +31,47 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    public List<Employee> getEmployeeList(boolean enabled){
+
+    public List<Employee> getEmployeeList(boolean enabled) {
         return employeeRepository.findAllByEnabled(enabled);
     }
-    public void saveEmployee(Employee employee){
+
+    public void saveEmployee(Employee employee) {
         employeeRepository.save(employee);
-    };
+    }
+
+    ;
+
     public Employee getEmployee(Long employeeId) throws NotFoundException {
         Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
         if (optionalEmployee.isEmpty()) throw new NotFoundException("Сотрудник не найден");
         return optionalEmployee.get();
     }
-    public List<Role> getAllRole(){
+
+    public List<Role> getAllRole() {
         return roleRepository.findAll();
     }
-    public boolean isAccessOrder(Employee employeeNow,Order order){
+
+    public boolean isAccessOrder(Employee employeeNow, Order order) {
+        //получает роль персонажа
         Set<Role> roles = employeeNow.getRole();
-        for(Role r:roles){
-            if(r.getRole().equals("ROLE_MANAGER")){
-                if(!order.getManager().equals(employeeNow)){
+        //переберет роли и если у него роль менеджера то проверяет являться ли он владельцем заказа
+        for (Role r : roles) {
+            if (r.getRole().equals("ROLE_MANAGER")) {
+                if (!order.getManager().equals(employeeNow)) {
                     return false;
                 }
             }
         }
         return true;
     }
+
     private Role getRole(Long roleId) throws NotFoundException {
         Optional<Role> optionalRole = roleRepository.findById(roleId);
-        if(optionalRole.isEmpty()) throw new NotFoundException("Роль не найдена");
+        if (optionalRole.isEmpty()) throw new NotFoundException("Роль не найдена");
         return optionalRole.get();
     }
+
     public void updateEmployee(RegistrationValidation registrationValidation, Employee employee) throws NotFoundException {
         employee.setPassword(passwordEncoder.encode(registrationValidation.getPassword()));
         employee.setUsername(registrationValidation.getUsername());
@@ -69,14 +81,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setName(registrationValidation.getName());
         employeeRepository.save(employee);
     }
+
     public boolean saveEmployee(RegistrationValidation registrationValidation) throws NotFoundException {
-        if(employeeRepository.findByUsername(registrationValidation.getUsername())!=null) return false;
+        //если юзернейм уже есть то возвращает фалс
+        if (employeeRepository.findByUsername(registrationValidation.getUsername()) != null) return false;
         Role role = getRole(registrationValidation.getRoleId());
-        Employee employee = registrationValidation.toEmployee(passwordEncoder,role);
+        Employee employee = registrationValidation.toEmployee(passwordEncoder, role);
         employeeRepository.save(employee);
         return true;
     }
-    public List<Employee> getEmployeeUsernameContains(String username){
+
+    public List<Employee> getEmployeeUsernameContains(String username) {
         return employeeRepository.findByUsernameContainsOrderByEnabledDesc(username);
     }
 }

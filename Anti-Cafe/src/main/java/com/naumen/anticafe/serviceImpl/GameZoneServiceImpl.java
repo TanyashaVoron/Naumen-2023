@@ -18,13 +18,15 @@ public class GameZoneServiceImpl implements GameZoneService {
     public GameZoneServiceImpl(GameZoneRepository gameZoneRepository) {
         this.gameZoneRepository = gameZoneRepository;
     }
+
     public GameZone getGameZone(Long gameZoneId) throws NotFoundException {
         Optional<GameZone> optionalOrder = gameZoneRepository.findById(gameZoneId);
         if (optionalOrder.isEmpty()) throw new NotFoundException("Игровая зона не найдена");
         return optionalOrder.get();
     }
+
     @Override
-    public List<GameZone> getGameZoneList(){
+    public List<GameZone> getGameZoneList() {
         return gameZoneRepository.findAll();
     }
 }
