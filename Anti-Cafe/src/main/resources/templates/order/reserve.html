@@ -5,6 +5,7 @@
     <title>Резервирование</title>
 </head>
 <body>
+<form th:method="GET" th:action="@{/order/{id}(id=${orderId})}"><button type="submit">Назад</button> </form>
 <form th:method="GET" th:action="@{/order/{id}/reserve(id=${orderId})}">
     <label>
         <select th:name="dayMonth" th:onchange="">
