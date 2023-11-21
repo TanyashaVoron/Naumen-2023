@@ -1,4 +1,4 @@
-package com.naumen.anticafe.service;
+package com.naumen.anticafe.service.GameZone;
 
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.error.NotFoundException;

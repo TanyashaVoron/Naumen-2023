@@ -18,8 +18,6 @@ public class AntiCafeApplication {
     public static void main(String[] args) {
         SpringApplication.run(AntiCafeApplication.class, args);
     }
-
-
     @Bean
     public CommandLineRunner dataLoad(OrderRepository orderRepository,
                                       GuestRepository guestRepository,
@@ -34,7 +32,7 @@ public class AntiCafeApplication {
             role1.setRole("ROLE_ADMIN");
             roleRepository.save(role1);
             Role role3 = new Role();
-            role1.setRole("ROLE_GENERAL_MANAGER");
+            role3.setRole("ROLE_GENERAL_MANAGER");
             roleRepository.save(role3);
             Role role2 = new Role();
             role2.setRole("ROLE_MANAGER");

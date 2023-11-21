@@ -1,4 +1,4 @@
-package com.naumen.anticafe.service;
+package com.naumen.anticafe.service.order.reserve;
 
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;

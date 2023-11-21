@@ -3,9 +3,7 @@ package com.naumen.anticafe.domain;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -13,13 +11,14 @@ import java.util.Objects;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class GuestId implements Serializable {
 
     private Long guestId;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "order_id")
     private Order order;
 
     @Override

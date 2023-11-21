@@ -4,9 +4,10 @@ import com.naumen.anticafe.domain.Employee;
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;
 import com.naumen.anticafe.error.NotFoundException;
-import com.naumen.anticafe.service.EmployeeService;
-import com.naumen.anticafe.service.GameZoneService;
-import com.naumen.anticafe.service.OrderService;
+import com.naumen.anticafe.service.Employee.EmployeeService;
+import com.naumen.anticafe.service.GameZone.GameZoneService;
+import com.naumen.anticafe.service.order.OrderService;
+import com.naumen.anticafe.service.order.SearchOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -24,14 +25,16 @@ public class OrderManagementController {
     private final OrderService orderService;
     private final EmployeeService employeeService;
     private final GameZoneService gameZoneService;
+    private final SearchOrderService searchOrderService;
 
     @Autowired
     public OrderManagementController(OrderService orderService,
                                      EmployeeService employeeService,
-                                     GameZoneService gameZoneService) {
+                                     GameZoneService gameZoneService, SearchOrderService searchOrderService) {
         this.orderService = orderService;
         this.employeeService = employeeService;
         this.gameZoneService = gameZoneService;
+        this.searchOrderService = searchOrderService;
     }
 
     @GetMapping()
@@ -41,12 +44,11 @@ public class OrderManagementController {
                                       @RequestParam(value = "payment", required = false) Boolean payment,
                                       @RequestParam(value = "date", required = false) LocalDate reserveDate,
                                       @RequestParam(value = "employee", required = false) Employee employeeSearch,
-                                      @AuthenticationPrincipal Employee employee) {
-        try {
+                                      @AuthenticationPrincipal Employee employee) throws NotFoundException {
             List<Employee> employeeList = employeeService.getEmployeeList(true);
             GameZone gameZone = null;
             if (gameZoneId != null) gameZone = gameZoneService.getGameZone(gameZoneId);
-            List<Order> orders = orderService
+            List<Order> orders = searchOrderService
                     .getOrderByIdOrGameZoneOrPayment(
                             orderId,
                             gameZone,
@@ -58,34 +60,19 @@ public class OrderManagementController {
             model.addAttribute("orders", orders);
             model.addAttribute("employees", employeeList);
             return "orderManagement";
-        } catch (NotFoundException e) {
-            model.addAttribute("message", e.getMessage());
-            return "redirect:/order/notFound";
-        }
     }
 
     @PostMapping("/delete")
-    public String deleteOrder(@ModelAttribute("orderId") Long orderId, RedirectAttributes redirectAttributes) {
-        try {
+    public String deleteOrder(@ModelAttribute("orderId") Long orderId, RedirectAttributes redirectAttributes) throws NotFoundException {
             Order order = orderService.getOrder(orderId);
-            orderService.deleteOrder(order);
+            orderService.deleteOrderCascade(order);
             return "redirect:/orderManagement";
-        } catch (NotFoundException e) {
-            redirectAttributes.addAttribute("message", e.getMessage());
-            return "redirect:/order/notFound";
-        }
     }
-
     @PostMapping("/restore")
-    public String restoreOrder(@ModelAttribute("orderId") Long orderId, RedirectAttributes redirectAttributes) {
-        try {
+    public String restoreOrder(@ModelAttribute("orderId") Long orderId, RedirectAttributes redirectAttributes) throws NotFoundException {
             Order order = orderService.getOrder(orderId);
             order.setTaggedDelete(false);
             orderService.save(order);
             return "redirect:/orderManagement";
-        } catch (NotFoundException e) {
-            redirectAttributes.addAttribute("message", e.getMessage());
-            return "redirect:/order/notFound";
-        }
     }
 }

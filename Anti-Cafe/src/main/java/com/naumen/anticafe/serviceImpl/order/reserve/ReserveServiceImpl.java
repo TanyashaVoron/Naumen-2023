@@ -1,12 +1,15 @@
-package com.naumen.anticafe.serviceImpl;
+package com.naumen.anticafe.serviceImpl.order.reserve;
 
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;
 import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.properties.ReserveServiceProperties;
-import com.naumen.anticafe.service.GameZoneService;
-import com.naumen.anticafe.service.OrderService;
-import com.naumen.anticafe.service.ReserveService;
+import com.naumen.anticafe.service.GameZone.GameZoneService;
+import com.naumen.anticafe.service.order.CalculationTotalService;
+import com.naumen.anticafe.service.order.OrderService;
+import com.naumen.anticafe.service.order.PaymentOrderService;
+import com.naumen.anticafe.service.order.SearchOrderService;
+import com.naumen.anticafe.service.order.reserve.ReserveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +21,19 @@ import java.util.List;
 
 @Service
 public class ReserveServiceImpl implements ReserveService {
-    private final OrderService orderService;
     private final GameZoneService gameZoneService;
     private final ReserveServiceProperties reserveServiceProperties;
+    private final PaymentOrderService paymentOrderService;
+    private final CalculationTotalService calculateTotalService;
+    private final SearchOrderService searchOrderService;
+
     @Autowired
-    public ReserveServiceImpl(OrderService orderService,
-                              GameZoneService gameZoneService, ReserveServiceProperties reserveServiceProperties) {
-        this.orderService = orderService;
+    public ReserveServiceImpl(GameZoneService gameZoneService, ReserveServiceProperties reserveServiceProperties, PaymentOrderService paymentOrderService, CalculationTotalService calculateTotalService, SearchOrderService searchOrderService) {
         this.gameZoneService = gameZoneService;
         this.reserveServiceProperties = reserveServiceProperties;
+        this.paymentOrderService = paymentOrderService;
+        this.calculateTotalService = calculateTotalService;
+        this.searchOrderService = searchOrderService;
     }
     @Override
     public List<String> getAllDayOfReserve() {
@@ -48,7 +55,7 @@ public class ReserveServiceImpl implements ReserveService {
                            int freeTime,
                            int maxHour,
                            int hour) throws NotFoundException {
-        orderService.checkPaymentOrder(order);
+        paymentOrderService.checkPaymentOrder(order);
         GameZone gameZone = gameZoneService.getGameZone(gameZoneId);
         //создаем переменную даты
         LocalDate reserveDay = getReserveDay(dayOfMount);
@@ -61,18 +68,16 @@ public class ReserveServiceImpl implements ReserveService {
         order.setReserveDate(reserveDay);
         order.setReserveTime(reserveStart);
         order.setEndReserve(reserveEnd);
-        orderService.calculateTotal(order);
-        orderService.save(order);
+        calculateTotalService.calculateTotal(order);
     }
 
     @Override
     public void deleteReserve(Order order) throws NotFoundException {
-        orderService.checkPaymentOrder(order);
+        paymentOrderService.checkPaymentOrder(order);
         order.setGameZone(null);
         order.setReserveDate(null);
         order.setReserveTime(null);
         order.setEndReserve(null);
-        orderService.save(order);
     }
 
 
@@ -114,7 +119,7 @@ public class ReserveServiceImpl implements ReserveService {
 
     private void deleteReserveTime(List<Integer> allTimeReserve, GameZone gameZone, LocalDate localDate) {
         //Получаем лист заказов в которых есть резерв и он на требуемую дату
-        List<Order> orderList = new ArrayList<>(orderService.getOrderByGameZoneAndReserveDate(gameZone, localDate));
+        List<Order> orderList = new ArrayList<>(searchOrderService.getOrderByGameZoneAndReserveDate(gameZone, localDate));
         //Перебирает каждый найденный заказ
         for (Order o : orderList) {
             //получает начальный час резерва

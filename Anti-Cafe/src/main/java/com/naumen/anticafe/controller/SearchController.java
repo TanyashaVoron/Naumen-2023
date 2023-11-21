@@ -4,9 +4,10 @@ import com.naumen.anticafe.domain.Employee;
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;
 import com.naumen.anticafe.error.NotFoundException;
-import com.naumen.anticafe.service.EmployeeService;
-import com.naumen.anticafe.service.GameZoneService;
-import com.naumen.anticafe.service.OrderService;
+import com.naumen.anticafe.service.Employee.EmployeeService;
+import com.naumen.anticafe.service.GameZone.GameZoneService;
+import com.naumen.anticafe.service.order.OrderService;
+import com.naumen.anticafe.service.order.SearchOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -23,17 +24,15 @@ import java.util.Optional;
 @RequestMapping("/search")
 public class SearchController {
 
-    private final OrderService orderService;
     private final EmployeeService employeeService;
     private final GameZoneService gameZoneService;
-
+    private final SearchOrderService searchOrderService;
     @Autowired
-    public SearchController(OrderService orderService,
-                            EmployeeService employeeService,
-                            GameZoneService gameZoneService) {
-        this.orderService = orderService;
+    public SearchController(EmployeeService employeeService,
+                            GameZoneService gameZoneService, SearchOrderService searchOrderService) {
         this.employeeService = employeeService;
         this.gameZoneService = gameZoneService;
+        this.searchOrderService = searchOrderService;
     }
 
     @GetMapping()
@@ -43,12 +42,11 @@ public class SearchController {
                              @RequestParam(value = "payment", required = false) Boolean payment,
                              @RequestParam(value = "date", required = false) LocalDate reserveDate,
                              @RequestParam(value = "employee", required = false) Employee employeeSearch,
-                             @AuthenticationPrincipal Employee employee) {
-        try {
+                             @AuthenticationPrincipal Employee employee) throws NotFoundException {
             List<Employee> employeeList = employeeService.getEmployeeList(true);
             GameZone gameZone = null;
             if (gameZoneId != null) gameZone = gameZoneService.getGameZone(gameZoneId);
-            List<Order> orders = orderService
+            List<Order> orders = searchOrderService
                     .getOrderByIdOrGameZoneOrPayment(
                             orderId,
                             gameZone,
@@ -60,9 +58,5 @@ public class SearchController {
             model.addAttribute("orders", orders);
             model.addAttribute("employees", employeeList);
             return "search";
-        } catch (NotFoundException e) {
-            model.addAttribute("message", e.getMessage());
-            return "redirect:/order/notFound";
-        }
     }
 }

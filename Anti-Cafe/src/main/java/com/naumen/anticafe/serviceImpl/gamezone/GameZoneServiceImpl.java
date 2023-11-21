@@ -1,11 +1,12 @@
-package com.naumen.anticafe.serviceImpl;
+package com.naumen.anticafe.serviceImpl.gamezone;
 
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.repository.GameZoneRepository;
-import com.naumen.anticafe.service.GameZoneService;
+import com.naumen.anticafe.service.GameZone.GameZoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class GameZoneServiceImpl implements GameZoneService {
     public GameZoneServiceImpl(GameZoneRepository gameZoneRepository) {
         this.gameZoneRepository = gameZoneRepository;
     }
-
+    @Transactional(readOnly = true)
     public GameZone getGameZone(Long gameZoneId) throws NotFoundException {
         Optional<GameZone> optionalOrder = gameZoneRepository.findById(gameZoneId);
         if (optionalOrder.isEmpty()) throw new NotFoundException("Игровая зона не найдена");
@@ -26,6 +27,7 @@ public class GameZoneServiceImpl implements GameZoneService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<GameZone> getGameZoneList() {
         return gameZoneRepository.findAll();
     }

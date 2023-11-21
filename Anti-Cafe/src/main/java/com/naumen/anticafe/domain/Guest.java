@@ -2,10 +2,15 @@ package com.naumen.anticafe.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Date;
-@Data
+import java.util.List;
+
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @Table(name = "guests")
@@ -19,4 +24,6 @@ public class Guest {
     private Date timeBegin;
     private Date timeEnd;
     private int total;
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "guest")
+    private List<GuestCart> Cart;
 }
