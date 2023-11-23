@@ -1,6 +1,9 @@
 package com.naumen.anticafe.controller;
 
 import com.naumen.anticafe.DTO.object.EmployeeDTO;
+import com.naumen.anticafe.DTO.receive.employee.ActivateDTO;
+import com.naumen.anticafe.DTO.receive.employee.DeactivateDTO;
+import com.naumen.anticafe.DTO.receive.employee.ShowDTO;
 import com.naumen.anticafe.DTO.receive.employee.ShowAddEditDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowAddSendDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowEditSendDTO;
@@ -62,14 +65,15 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public String showEmployee(@RequestParam(value = "username", required = false) String username,
-                               @AuthenticationPrincipal(expression = "name") String employee, Model model) {
+    public String showEmployee(@ModelAttribute ShowDTO DTO,
+                               @AuthenticationPrincipal(expression = "name") String employee,
+                               Model model) {
         ShowSendDTO sendDTO = new ShowSendDTO();
         //проверяет юзер нейм
         sendDTO.setNameEmployee(employee);
-        if (username != null && !username.equals("")) {
+        if (DTO.getUsername()!= null && !DTO.getUsername().equals("")) {
             //если не пустой, то выискивает сотрудников с фрагментом
-            for (Employee e : searchEmployeeService.getEmployeeUsernameContains(username)) {
+            for (Employee e : searchEmployeeService.getEmployeeUsernameContains(DTO.getUsername())) {
                 sendDTO.setEmployeeDTO(
                         e.getId(),
                         e.getName(),
@@ -129,7 +133,7 @@ public class EmployeeController {
                               BindingResult bindingResult,
                               RedirectAttributes redirectAttributes) throws NotFoundException {
         //если есть ошибки в валидации то переадресует все ошибки в GET
-        Optional<Employee> employee = employeeService.searchEmployee(DTO.getUsername());
+        Optional<Employee> employee = employeeService.searchEmployeeDuplicate(DTO.getUsername());
         if (employee.isPresent())
             bindingResult.addError(new FieldError("addDTO", "usernameDuplicate", "Имя пользователя уже занято"));
         if (bindingResult.hasErrors()) {
@@ -145,16 +149,16 @@ public class EmployeeController {
     }
 
     @PostMapping("/deactivate")
-    public String deactivateEmployee(@RequestParam("employeeId") Long employeeId, RedirectAttributes redirectAttributes) throws NotFoundException {
-        Employee employee = employeeService.getEmployee(employeeId);
+    public String deactivateEmployee(@ModelAttribute DeactivateDTO DTO) throws NotFoundException {
+        Employee employee = employeeService.getEmployee(DTO.getEmployeeId());
         employee.setEnabled(false);
         employeeService.saveEmployee(employee);
         return "redirect:/employee";
     }
 
     @PostMapping("/activate")
-    public String activateEmployee(@RequestParam("employeeId") Long employeeId, RedirectAttributes redirectAttributes) throws NotFoundException {
-        Employee employee = employeeService.getEmployee(employeeId);
+    public String activateEmployee(@ModelAttribute ActivateDTO DTO, RedirectAttributes redirectAttributes) throws NotFoundException {
+        Employee employee = employeeService.getEmployee(DTO.getEmployeeId());
         employee.setEnabled(true);
         employeeService.saveEmployee(employee);
         return "redirect:/employee";
@@ -166,7 +170,7 @@ public class EmployeeController {
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) throws NotFoundException {
         Employee employee = employeeService.getEmployee(employeeId);
-        Optional<Employee> optionalEmployee = employeeService.searchEmployee(DTO.getUsername());
+        Optional<Employee> optionalEmployee = employeeService.searchEmployeeDuplicate(DTO.getUsername());
         if (optionalEmployee.isPresent())
             if(!optionalEmployee.get().getName().equals(employee.getName()))
                 bindingResult.addError(new FieldError("addDTO", "usernameDuplicate", "Имя пользователя уже занято"));

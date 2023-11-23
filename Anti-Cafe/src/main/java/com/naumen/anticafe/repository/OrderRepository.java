@@ -20,4 +20,5 @@ public interface OrderRepository  extends CrudRepository<Order, Long> {
                                                                          @Param("employee") Employee manager,
                                                                          @Param("taggedDelete") Boolean taggedDelete
     );
+    List<Order> findAllByTimerTaggedDelete(LocalDate timeTaggedDelete);
 }

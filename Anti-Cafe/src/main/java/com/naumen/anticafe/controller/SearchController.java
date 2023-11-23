@@ -1,62 +1,32 @@
 package com.naumen.anticafe.controller;
 
-import com.naumen.anticafe.domain.Employee;
-import com.naumen.anticafe.domain.GameZone;
-import com.naumen.anticafe.domain.Order;
+import com.naumen.anticafe.DTO.receive.searchOrderManagment.ShowDTO;
+import com.naumen.anticafe.DTO.send.searchOrderManagment.ShowSendDTO;
 import com.naumen.anticafe.error.NotFoundException;
-import com.naumen.anticafe.service.Employee.EmployeeService;
-import com.naumen.anticafe.service.GameZone.GameZoneService;
-import com.naumen.anticafe.service.order.OrderService;
-import com.naumen.anticafe.service.order.SearchOrderService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.naumen.anticafe.helper.SearchOrderManagementHelper;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/search")
 public class SearchController {
 
-    private final EmployeeService employeeService;
-    private final GameZoneService gameZoneService;
-    private final SearchOrderService searchOrderService;
-    @Autowired
-    public SearchController(EmployeeService employeeService,
-                            GameZoneService gameZoneService, SearchOrderService searchOrderService) {
-        this.employeeService = employeeService;
-        this.gameZoneService = gameZoneService;
-        this.searchOrderService = searchOrderService;
+    private final SearchOrderManagementHelper searchOrderManagementHelper;
+
+    public SearchController(SearchOrderManagementHelper searchOrderManagementHelper) {
+        this.searchOrderManagementHelper = searchOrderManagementHelper;
     }
 
     @GetMapping()
-    public String searchShow(Model model,
-                             @RequestParam(value = "orderId", required = false) Long orderId,
-                             @RequestParam(value = "gameZoneId", required = false) Long gameZoneId,
-                             @RequestParam(value = "payment", required = false) Boolean payment,
-                             @RequestParam(value = "date", required = false) LocalDate reserveDate,
-                             @RequestParam(value = "employee", required = false) Employee employeeSearch,
-                             @AuthenticationPrincipal Employee employee) throws NotFoundException {
-            List<Employee> employeeList = employeeService.getEmployeeList(true);
-            GameZone gameZone = null;
-            if (gameZoneId != null) gameZone = gameZoneService.getGameZone(gameZoneId);
-            List<Order> orders = searchOrderService
-                    .getOrderByIdOrGameZoneOrPayment(
-                            orderId,
-                            gameZone,
-                            payment,
-                            reserveDate,
-                            employeeSearch,
-                            false);
-            model.addAttribute("user", Optional.ofNullable(employee));
-            model.addAttribute("orders", orders);
-            model.addAttribute("employees", employeeList);
-            return "search";
+    public String showSearch(Model model,
+                             @ModelAttribute ShowDTO dto,
+                             @AuthenticationPrincipal(expression = "username") String employeeUsername) throws NotFoundException {
+        ShowSendDTO sendDTO = searchOrderManagementHelper.searchOrder(dto,false,employeeUsername);
+        model.addAttribute("sendDTO",sendDTO);
+        return "search";
     }
 }

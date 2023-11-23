@@ -36,6 +36,7 @@ public class Order {
     private int tariff;
     private int total;
     private Boolean taggedDelete;
+    private LocalDate timerTaggedDelete;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "compositeId.order")
     private List<Guest> guests;
 }

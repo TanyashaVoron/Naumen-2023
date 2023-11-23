@@ -15,5 +15,5 @@ public interface ReserveService {
                     int maxHour,
                     int hour) throws NotFoundException;
     List<String> getAllDayOfReserve();
-    Integer[][] getFreeTimesAndMaxHourReserve(GameZone gameZone, String dayMonth) throws NotFoundException;
+    int[][] getFreeTimesAndMaxHourReserve(GameZone gameZone, String dayMonth) throws NotFoundException;
 }

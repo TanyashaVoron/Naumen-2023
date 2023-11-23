@@ -5,26 +5,27 @@
     <title>Резервирование</title>
 </head>
 <body>
-<form th:method="GET" th:action="@{/order/{id}(id=${orderId})}"><button type="submit">Назад</button> </form>
-<form th:method="GET" th:action="@{/order/{id}/reserve(id=${orderId})}">
+<form th:method="GET" th:action="@{/order/{id}(id=${sendDTO.getOrderId()})}"><button type="submit">Назад</button> </form>
+<form th:method="GET" th:action="@{/order/{id}/reserve(id=${sendDTO.getOrderId()})}">
     <label>
         <select th:name="dayMonth" th:onchange="">
-            <option th:each="days:${dayOfReserve}" th:value="${days}" th:text="${days}"></option>
+            <option th:each="days:${sendDTO.getDayOfReserve()}" th:value="${days}" th:text="${days}"></option>
         </select>
         <select th:name="gameZoneId" th:onchange="">
-            <option th:each="gameZone:${gameZones}" th:value="${gameZone.getId()}" th:text="${gameZone.getId()}"></option>
+            <option th:each="gameZone:${sendDTO.getGameZones()}" th:value="${gameZone.getId()}"
+                    th:text="${gameZone.getId()}+':'+${gameZone.getName()}"></option>
         </select>
     </label>
     <input type="submit" value="Найти"/>
 </form>
 
-<table>
+<table th:if="${sendDTO.getFreeTimes().isPresent()}">
     <tr>
         <th>Свободное<br/>время</th>
         <th>Макс<br/>длительность<br/>резерва</th>
         <th>Введите резервируемое время</th>
     </tr>
-    <tr th:each="freeTime:${freeTimes}">
+    <tr th:each="freeTime:${sendDTO.getFreeTimes().get()}">
         <td>
             <a th:text="${freeTime[0]} + ':00'"></a>
         </td>
@@ -32,19 +33,21 @@
             <a th:text="${freeTime[1]} + 'ч.'"></a>
         </td>
         <td>
+            <a th:if="${sendDTO.getHourError().isPresent()&&sendDTO.getHourError().get.equals(freeTime[0])}"
+               style="color:#FF0000" th:text="${sendDTO.getHourMessageError()}"></a>
             <form th:method="POST" th:action="@{/order/reserve/Add}">
                 <label th:for="hour"></label>
-                <input th:type="hidden" th:value="${dayMonth}" th:name="dayOfMount">
-                <input th:type="hidden" th:value="${gameZoneId}" th:name="gameZoneId">
+                <input th:type="hidden" th:value="${sendDTO.getDayMonth()}" th:name="dayOfMount">
+                <input th:type="hidden" th:value="${sendDTO.getGameZoneId()}" th:name="gameZoneId">
                 <input th:type="hidden" th:value="${freeTime[0]}" th:name="freeTime">
                 <input th:type="hidden" th:value="${freeTime[1]}" th:name="maxHour">
-                <input th:type="hidden" th:value="${orderId}" th:name="orderId">
+                <input th:type="hidden" th:value="${sendDTO.getOrderId()}" th:name="orderId">
                 <input type="number" th:name="hour"  th:id="hour"/>
                 <input type="submit" th:value="Зарезервировать">
             </form>
         </td>
     </tr>
 </table>
-<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+<a th:text="${sendDTO.getEmployee()}"></a>
 </body>
 </html>

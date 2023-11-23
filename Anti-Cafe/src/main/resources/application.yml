@@ -7,3 +7,7 @@ reserve:
     daysToReserve: 7
     openingHour: 9
     closingHour: 24
+scheduler:
+  order:
+    lifetime:
+      tagged-deletion: 2

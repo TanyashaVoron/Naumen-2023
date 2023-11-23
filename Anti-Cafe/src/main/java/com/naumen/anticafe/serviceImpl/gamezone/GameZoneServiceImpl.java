@@ -25,7 +25,6 @@ public class GameZoneServiceImpl implements GameZoneService {
         if (optionalOrder.isEmpty()) throw new NotFoundException("Игровая зона не найдена");
         return optionalOrder.get();
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<GameZone> getGameZoneList() {

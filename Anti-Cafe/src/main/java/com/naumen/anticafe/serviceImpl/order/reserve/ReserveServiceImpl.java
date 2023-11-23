@@ -6,7 +6,6 @@ import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.properties.ReserveServiceProperties;
 import com.naumen.anticafe.service.GameZone.GameZoneService;
 import com.naumen.anticafe.service.order.CalculationTotalService;
-import com.naumen.anticafe.service.order.OrderService;
 import com.naumen.anticafe.service.order.PaymentOrderService;
 import com.naumen.anticafe.service.order.SearchOrderService;
 import com.naumen.anticafe.service.order.reserve.ReserveService;
@@ -82,7 +81,7 @@ public class ReserveServiceImpl implements ReserveService {
 
 
     @Override
-    public Integer[][] getFreeTimesAndMaxHourReserve(GameZone gameZone, String dayMonth){
+    public int[][] getFreeTimesAndMaxHourReserve(GameZone gameZone, String dayMonth){
         //разделяем день и месяц
         String[] dayAndMonth = dayMonth.split("\\.");
         //создаем переменную даты и дня
@@ -96,12 +95,12 @@ public class ReserveServiceImpl implements ReserveService {
         //удаляет зарезервированные часы
         deleteReserveTime(allTimeReserve, gameZone, dayReserve);
         //получаем массив из списка свободных часов, где 0 время, а 1 максимальные часы
-        Integer[][] availableReserve = getFreeTimeArray(allTimeReserve);
+        int[][] availableReserve = getFreeTimeArray(allTimeReserve);
         giveTimeMaxHours(availableReserve);
         return availableReserve;
     }
 
-    private void giveTimeMaxHours(Integer[][] availableReserve) {
+    private void giveTimeMaxHours(int[][] availableReserve) {
         //указывает на возможные часы резерва
         int closingHour = reserveServiceProperties.getClosingHour();
         for (int i = availableReserve.length - 1; i >= 0; i--) {
@@ -133,9 +132,9 @@ public class ReserveServiceImpl implements ReserveService {
         }
     }
 
-    private Integer[][] getFreeTimeArray(List<Integer> allTimeReserve) {
+    private int[][] getFreeTimeArray(List<Integer> allTimeReserve) {
         //объявляет массив первое число час второе сколько можно зарезервировать от него
-        Integer[][] availableReserve = new Integer[allTimeReserve.size()][2];
+        int[][] availableReserve = new int[allTimeReserve.size()][2];
         //передает в массив все доступные резервы
         for (int i = 0; i < allTimeReserve.size(); i++) {
             availableReserve[i][0] = allTimeReserve.get(i);

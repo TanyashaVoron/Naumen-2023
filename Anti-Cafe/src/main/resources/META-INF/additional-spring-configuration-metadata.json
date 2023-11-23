@@ -14,6 +14,11 @@
       "name": "reserve.service.closingHour",
       "type": "java.lang.String",
       "description": "Указывает время закрытия от 1 до 24 reserve.service.daysToReserve."
+    },
+    {
+      "name": "scheduler.order.lifetime.tagged-deletion",
+      "type": "java.lang.String",
+      "description": "Указывает от 1 до 30 сколько проживет заказ после пометки на удаление."
     }
   ]
 }

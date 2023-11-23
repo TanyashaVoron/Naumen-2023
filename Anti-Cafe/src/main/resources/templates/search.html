@@ -17,17 +17,20 @@
         <option th:value="${false}" th:text="'Не оплаченные'"></option>
     </select>
     <label for="employee">Укажите сотрудника: </label>
-    <select th:name="employee" id="employee">
+    <select th:name="employeeSearch" id="employee">
         <option th:value="${null}" th:text="'Все'"></option>
-        <option th:each="employee:${employees}" th:value="${employee}" th:text="${employee.getName()}"></option>
+        <option th:each="employee:${sendDTO.getEmployeeList()}" th:value="${employee.getId()}" th:text="${employee.getName()}"></option>
     </select>
     <label for="day">Введите день резерва</label>
     <input type="date" th:name="date" id="day">
     <br/>
     <label for="orderId">Введите номер заказа</label>
-    <input type="text" th:name="orderId" id="orderId" placeholder="Номер заказа">
+    <input type="number" th:name="orderId" id="orderId" placeholder="Номер заказа">
     <label for="gameZoneId">Введите игровую зону</label>
-    <input type="text" th:name="gameZoneId" id="gameZoneId" placeholder="Номер зоны">
+    <select th:name="gameZoneId" id="gameZoneId">
+        <option th:value="${null}" th:text="'Все'"></option>
+        <option th:each="gameZone:${sendDTO.getGameZoneList()}" th:value="${gameZone.getId()}" th:text="${gameZone.getId()}+':'+${gameZone.getName()}"></option>
+    </select>
     <input type="submit" value="Найти!"/>
 </form>
 <a th:href="@{/search}" th:text="'Сбросить'"></a>
@@ -43,39 +46,38 @@
         <th>Итог</th>
         <th>Действия</th>
     </tr>
-    <tr th:each="order : ${orders}">
+    <tr th:each="order : ${sendDTO.getOrderList()}">
         <td>
-            <a th:text="${order.getId()}"/>
+            <a th:text="${order.getOrderId()}"/>
         </td>
         <td>
-
-            <a th:if="${order.getGameZone()!=null}"
-               th:text="${order.getGameZone().getId()}+':'+${order.getGameZone().getName()}"/>
+            <a th:if="${order.getGameZone().isPresent()}"
+               th:text="${order.getGameZone().get()}"/>
         </td>
         <td>
-            <a th:if="${order.getReserveDate()!=null}"
-               th:text="${order.getReserveDate().getDayOfMonth()}+'.'+${order.getReserveDate().getMonthValue()} + '.'+ ${order.getReserveDate().getYear()}"/>
+            <a th:if="${order.getGameZone().isPresent()}"
+               th:text="${order.getReserveDate()}"/>
         </td>
         <td>
-            <a th:if="${order.getReserveTime()!=null}"
-               th:text="${order.getReserveTime().getHour()}+':'+${order.getReserveTime().getMinute()}"/>
+            <a th:if="${order.getGameZone().isPresent()}"
+               th:text="${order.getReserveTime()}"/>
         </td>
         <td>
-            <a th:if="${order.getEndReserve()!=null}"
-               th:text="${order.getEndReserve().getHour()}+':'+${order.getEndReserve().getMinute()}"/>
+            <a th:if="${order.getGameZone().isPresent()}"
+               th:text="${order.getEndReserve()}"/>
         </td>
         <td>
-            <a th:if="${order.getManager()!=null}" th:text="${order.getManager().getName()}"></a>
+            <a th:text="${order.getEmployee()}"></a>
         </td>
         <td>
-            <a th:if="${order.getPayment()}" th:text="'Оплачено'"></a>
-            <a th:if="${!order.getPayment()}" th:text="'Не оплачено'"></a>
+            <a th:if="${order.isPayment()}" th:text="'Оплачено'"></a>
+            <a th:if="${!order.isPayment()}" th:text="'Не оплачено'"></a>
         </td>
         <td>
             <a th:text="${order.getTotal()}"></a>
         </td>
         <td>
-            <a th:text="Перейти" th:href="@{/order/{id}(id=${order.getId()})}"/>
+            <a th:text="Перейти" th:href="@{/order/{id}(id=${order.getOrderId()})}"/>
         </td>
     </tr>
 </table>
@@ -83,6 +85,6 @@
     <input type="submit" value="Создать заказ!"/>
 </form>
 <br/>
-<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+<a th:text="${sendDTO.getUser()}"></a>
 </body>
 </html>

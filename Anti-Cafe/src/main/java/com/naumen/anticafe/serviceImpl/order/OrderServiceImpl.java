@@ -35,6 +35,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<Order> getOrderMarkDeletion(LocalDate localDate) {
+        return orderRepository.findAllByTimerTaggedDelete(localDate);
+    }
+
+    @Override
     public Order getOrder(Long orderId) throws NotFoundException {
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         if (optionalOrder.isEmpty()) throw new NotFoundException("Заказ не найден");
