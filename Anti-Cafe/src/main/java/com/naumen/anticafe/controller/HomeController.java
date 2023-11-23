@@ -14,9 +14,8 @@ import java.util.Optional;
 @RequestMapping("/")
 public class HomeController {
     @GetMapping
-    public String homeShow(@AuthenticationPrincipal Employee employee, Model model){
-        Optional<Employee> optionalEmployee = Optional.ofNullable(employee);
-        model.addAttribute("user",optionalEmployee);
+    public String homeShow(@AuthenticationPrincipal(expression = "name") String employee, Model model){
+        model.addAttribute("user",employee);
         return "home";
     }
 }

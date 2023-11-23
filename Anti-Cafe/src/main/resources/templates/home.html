@@ -5,8 +5,7 @@
     <title>Менеджер</title>
 </head>
 <body>
-<form th:if="${user.isEmpty()}" th:method="GET" th:action="@{/login}"><button type="submit">Войти</button> </form>
-<form th:if="${user.isPresent()}" th:method="POST" th:action="@{/logout}"><button type="submit">Выйти</button> </form>
+<form th:if="${!user.equals('')}" th:method="POST" th:action="@{/logout}"><button type="submit">Выйти</button> </form>
 <form th:method="GET" th:action="@{/report}"><button type="submit">Отчет</button> </form>
 <form th:method="GET" th:action="@{/employee}"><button type="submit">Управление пользователями</button> </form>
 <form th:method="GET" th:action="@{/orderManagement}"><button type="submit">Управление заказами</button> </form>
@@ -14,6 +13,6 @@
 <form th:method="GET" th:action="@{/gamezone}"><button type="submit">Игровые зоны</button> </form>
 <form th:method="POST" th:action="@{/order/create}"><button type="submit">Создать заказ</button> </form>
 <form th:method="GET" th:action="@{/search}"><button type="submit">Найти заказ</button> </form>
-<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+<a th:text="${user}"></a>
 </body>
 </html>

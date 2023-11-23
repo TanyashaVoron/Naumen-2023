@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>error</title>
 </head>
 <body>
-
+<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+<a th:text="${sendDTO.getMessage()}"/>
+<a th:text="'Владелец: '+${sendDTO.getNameEmployeeNow()}"/>
+<a th:text="'Сотрудник: '+${sendDTO.getOwnerOrderEmployeeName()}"/>
 </body>
 </html>

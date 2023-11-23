@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.util.Optional;
+
 @Configuration
 public class SecurityConfig {
     @Bean
@@ -27,8 +29,8 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(EmployeeRepository employeeRepository) {
         //поиск сотрудника в бд если его не находит, выдает ошибку
         return username -> {
-            Employee employee = employeeRepository.findByUsername(username);
-            if (employee != null) return employee;
+            Optional<Employee> employee = employeeRepository.findByUsername(username);
+            if (employee.isPresent()) return employee.get();
             throw new UsernameNotFoundException("Employee '" + username + "' not found");
         };
     }
@@ -37,7 +39,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         //контроль доступа пользователям(на текущий момент все открыто)
         httpSecurity.authorizeHttpRequests(request -> request
-                .anyRequest().permitAll()).formLogin(formLogin -> formLogin.loginPage("/login").permitAll());
+                .requestMatchers(
+                        new AntPathRequestMatcher("/login"),
+                        new AntPathRequestMatcher("/h2-console/**")
+                ).permitAll().anyRequest().authenticated()
+        );
+
+        httpSecurity.formLogin(formLogin -> formLogin.loginPage("/login"));
         httpSecurity.logout(logout -> logout.logoutSuccessUrl("/login"));
         httpSecurity.csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")));
         httpSecurity.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));

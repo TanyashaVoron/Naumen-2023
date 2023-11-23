@@ -20,6 +20,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public Employee searchEmployeeName(String name) throws NotFoundException {
+        Optional<Employee> optionalEmployee = employeeRepository.findByName(name);
+        if(optionalEmployee.isEmpty()) throw new NotFoundException("Не найден сотрудник");
+        return optionalEmployee.get();
+    }
+
+    public Optional<Employee> searchEmployee(String username){
+        return employeeRepository.findByUsername(username);
+    }
+    @Override
     @Transactional(readOnly = true)
     public List<Employee> getEmployeeList(boolean enabled) {
         return employeeRepository.findAllByEnabled(enabled);

@@ -5,6 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface RoleRepository  extends CrudRepository<Role, Long> {
+public interface RoleRepository  extends CrudRepository<Role, Integer> {
     List<Role> findAll();
 }

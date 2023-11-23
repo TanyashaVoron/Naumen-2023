@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 @Getter
@@ -23,16 +24,13 @@ public class Employee implements UserDetails {
     private String name;
     private String password;
     private String username;
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Role> role;
-
+    @ManyToOne
+    private Role role;
     private boolean enabled;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role;
+        return Collections.singleton(role);
     }
-
     @Override
     public boolean isAccountNonExpired() {
         return true;

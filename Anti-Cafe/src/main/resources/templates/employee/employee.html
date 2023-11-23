@@ -19,13 +19,13 @@
 <table>
   <tr>
     <th>ID</th>
-    <th>Имя</th>
-    <th>Имя пользователя</th>
+    <th>ФИО</th>
+    <th>Логин</th>
     <th>Роль</th>
     <th>Активирован</th>
     <th>Действия</th>
   </tr>
-  <tr th:each="employee : ${employees}">
+  <tr th:each="employee : ${sendDTO.getEmployees()}">
     <td>
       <a th:text="${employee.getId()}"/>
     </td>
@@ -36,9 +36,7 @@
       <a th:text="${employee.getUsername()}"/>
     </td>
     <td>
-      <div th:each="role: ${employee.getRole()}">
-        <a  th:text="${role.getRole()}"/>
-      </div>
+        <a  th:text="${employee.getRole()}"/>
     </td>
     <td>
       <a  th:if="${employee.isEnabled()}" th:text="АКТИВЕН"/>
@@ -58,6 +56,6 @@
   </tr>
 </table>
 <br/>
-<a th:if="${user.isPresent()}" th:text="${user.get().getName()}"></a>
+<a th:text="${sendDTO.getNameEmployee()}"></a>
 </body>
 </html>

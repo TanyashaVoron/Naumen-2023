@@ -23,7 +23,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role getRole(Long roleId) throws NotFoundException {
+    public Role getRole(Integer roleId) throws NotFoundException {
         Optional<Role> optionalRole = roleRepository.findById(roleId);
         if (optionalRole.isEmpty()) throw new NotFoundException("Роль не найдена");
         return optionalRole.get();

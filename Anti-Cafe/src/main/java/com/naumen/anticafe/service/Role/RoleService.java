@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface RoleService {
     List<Role> getAllRole();
-    Role getRole(Long roleId) throws NotFoundException;
+    Role getRole(Integer roleId) throws NotFoundException;
 }

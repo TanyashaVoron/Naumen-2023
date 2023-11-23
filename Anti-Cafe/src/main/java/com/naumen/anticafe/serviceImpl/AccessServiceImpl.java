@@ -8,19 +8,20 @@ import com.naumen.anticafe.service.AccessService;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+
 @Service
 public class AccessServiceImpl implements AccessService {
     @Override
-    public void isAccessOrder(Employee employeeNow, Order order) throws NoAccessToOperation {
+    public boolean isAccessOrder(Employee employeeNow, Order order){
         //получает роль персонажа
-        Set<Role> roles = employeeNow.getRole();
+        Role role = employeeNow.getRole();
         //переберет роли и если у него роль менеджера то проверяет являться ли он владельцем заказа
-        for (Role r : roles) {
-            if (r.getRole().equals("ROLE_MANAGER")) {
-                if (!order.getManager().equals(employeeNow)) {
-                    throw new NoAccessToOperation("У сотрудника нет доступа к этой операции обратитесь к Администратору либо к главному Менеджеру", employeeNow.getName(),order.getManager().getName());
-                }
+        if (role.getRole().equals("ROLE_MANAGER")) {
+            if (!order.getManager().equals(employeeNow)) {
+                return false;
             }
         }
+
+        return true;
     }
 }

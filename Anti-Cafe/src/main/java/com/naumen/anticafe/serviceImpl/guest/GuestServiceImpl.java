@@ -40,7 +40,7 @@ public class GuestServiceImpl implements GuestService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public long deleteGuest(Guest guest){
         //проверяет есть ли у гостя товары
         long countProduct = guestCartService.countByGuest(guest);
