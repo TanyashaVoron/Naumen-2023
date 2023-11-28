@@ -19,7 +19,7 @@
     <label for="employee">Укажите сотрудника: </label>
     <select th:name="employeeSearch" id="employee">
         <option th:value="${null}" th:text="'Все'"></option>
-        <option th:each="employee:${sendDTO.getEmployeeList()}" th:value="${employee.getId()}" th:text="${employee.getName()}"></option>
+        <option th:each="employee:${sendDTO.employeeList()}" th:value="${employee.id()}" th:text="${employee.name()}"></option>
     </select>
     <label for="day">Введите день резерва</label>
     <input type="date" th:name="date" id="day">
@@ -29,7 +29,7 @@
     <label for="gameZoneId">Введите игровую зону</label>
     <select th:name="gameZoneId" id="gameZoneId">
         <option th:value="${null}" th:text="'Все'"></option>
-        <option th:each="gameZone:${sendDTO.getGameZoneList()}" th:value="${gameZone.getId()}" th:text="${gameZone.getId()}+':'+${gameZone.getName()}"></option>
+        <option th:each="gameZone:${sendDTO.gameZoneList()}" th:value="${gameZone.id()}" th:text="${gameZone.id()}+':'+${gameZone.name()}"></option>
     </select>
     <input type="submit" value="Найти!"/>
 </form>
@@ -46,38 +46,38 @@
         <th>Итог</th>
         <th>Действия</th>
     </tr>
-    <tr th:each="order : ${sendDTO.getOrderList()}">
+    <tr th:each="order : ${sendDTO.orderList()}">
         <td>
-            <a th:text="${order.getOrderId()}"/>
+            <a th:text="${order.orderId()}"/>
         </td>
         <td>
-            <a th:if="${order.getGameZone().isPresent()}"
-               th:text="${order.getGameZone().get()}"/>
+            <a th:if="${order.gameZone().isPresent()}"
+               th:text="${order.gameZone().get()}"/>
         </td>
         <td>
-            <a th:if="${order.getGameZone().isPresent()}"
-               th:text="${order.getReserveDate()}"/>
+            <a th:if="${order.gameZone().isPresent()}"
+               th:text="${order.reserveDate()}"/>
         </td>
         <td>
-            <a th:if="${order.getGameZone().isPresent()}"
-               th:text="${order.getReserveTime()}"/>
+            <a th:if="${order.gameZone().isPresent()}"
+               th:text="${order.reserveTime()}"/>
         </td>
         <td>
-            <a th:if="${order.getGameZone().isPresent()}"
-               th:text="${order.getEndReserve()}"/>
+            <a th:if="${order.gameZone().isPresent()}"
+               th:text="${order.endReserve()}"/>
         </td>
         <td>
-            <a th:text="${order.getEmployee()}"></a>
+            <a th:text="${order.employee()}"></a>
         </td>
         <td>
-            <a th:if="${order.isPayment()}" th:text="'Оплачено'"></a>
-            <a th:if="${!order.isPayment()}" th:text="'Не оплачено'"></a>
+            <a th:if="${order.payment()}" th:text="'Оплачено'"></a>
+            <a th:if="${!order.payment()}" th:text="'Не оплачено'"></a>
         </td>
         <td>
-            <a th:text="${order.getTotal()}"></a>
+            <a th:text="${order.total()}"></a>
         </td>
         <td>
-            <a th:text="Перейти" th:href="@{/order/{id}(id=${order.getOrderId()})}"/>
+            <a th:text="Перейти" th:href="@{/order/{id}(id=${order.orderId()})}"/>
         </td>
     </tr>
 </table>
@@ -85,6 +85,6 @@
     <input type="submit" value="Создать заказ!"/>
 </form>
 <br/>
-<a th:text="${sendDTO.getUser()}"></a>
+<a th:text="${sendDTO.user()}"></a>
 </body>
 </html>

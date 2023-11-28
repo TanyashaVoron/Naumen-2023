@@ -11,6 +11,7 @@ import com.naumen.anticafe.service.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,6 +32,7 @@ public class OrderManagementController {
     }
 
     @GetMapping()
+    @Transactional(readOnly = true)
     public String showOrderManagement(Model model,
                                       @ModelAttribute ShowDTO dto,
                                       @AuthenticationPrincipal(expression = "username") String employeeUsername) throws NotFoundException {
@@ -40,15 +42,17 @@ public class OrderManagementController {
     }
 
     @PostMapping("/delete")
-    public String deleteOrder(@ModelAttribute DeleteDTO DTO) throws NotFoundException {
-        Order order = orderService.getOrder(DTO.getOrderId());
+    @Transactional
+    public String deleteOrder(@ModelAttribute DeleteDTO dto) throws NotFoundException {
+        Order order = orderService.getOrder(dto.orderId());
         orderService.deleteOrderCascade(order);
         return "redirect:/orderManagement";
     }
 
     @PostMapping("/restore")
-    public String restoreOrder(@ModelAttribute RestoreDTO DTO) throws NotFoundException {
-        Order order = orderService.getOrder(DTO.getOrderId());
+    @Transactional
+    public String restoreOrder(@ModelAttribute RestoreDTO dto) throws NotFoundException {
+        Order order = orderService.getOrder(dto.orderId());
         order.setTaggedDelete(false);
         orderService.save(order);
         return "redirect:/orderManagement";

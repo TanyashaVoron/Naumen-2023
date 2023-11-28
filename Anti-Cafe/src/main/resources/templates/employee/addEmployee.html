@@ -15,10 +15,10 @@
                 <label for="name">ФИО</label>
             </td>
             <td>
-                <div th:if="${sendDTO.getNameError().isPresent()}">
-                    <a th:text="${sendDTO.getNameError().get()}" style="color:#FF0000"></a>
+                <div th:if="${sendDTO.nameError().isPresent()}">
+                    <a th:text="${sendDTO.nameError().get()}" style="color:#FF0000"></a>
                 </div>
-                <input type="text" name="name" id="name" th:value="${sendDTO.getName()}"><br/>
+                <input type="text" name="name" id="name" th:value="${sendDTO.name()}"><br/>
             </td>
         </tr>
         <tr>
@@ -26,13 +26,13 @@
                 <label for="username">Логин</label>
             </td>
             <td>
-                <div th:if="${sendDTO.getUsernameError().isPresent()}">
-                    <a th:text="${sendDTO.getUsernameError().get()}" style="color:#FF0000"></a>
+                <div th:if="${sendDTO.usernameError().isPresent()}">
+                    <a th:text="${sendDTO.usernameError().get()}" style="color:#FF0000"></a>
                 </div>
-                <div th:if="${sendDTO.getUsernameDuplicateError().isPresent()}">
-                    <a th:text="${sendDTO.getUsernameDuplicateError().get()}" style="color:#FF0000"></a>
+                <div th:if="${sendDTO.usernameDuplicateError().isPresent()}">
+                    <a th:text="${sendDTO.usernameDuplicateError().get()}" style="color:#FF0000"></a>
                 </div>
-                <input type="text" name="username" id="username" th:value="${sendDTO.getUsername()}"><br/>
+                <input type="text" name="username" id="username" th:value="${sendDTO.username()}"><br/>
             </td>
         </tr>
         <tr>
@@ -40,8 +40,8 @@
                 <label for="password">Пароль</label>
             </td>
             <td>
-                <div th:if="${sendDTO.getPasswordError().isPresent()}">
-                    <a th:text="${sendDTO.getPasswordError().get()}" style="color:#FF0000"></a>
+                <div th:if="${sendDTO.passwordError().isPresent()}">
+                    <a th:text="${sendDTO.passwordError().get()}" style="color:#FF0000"></a>
                 </div>
                 <input type="password" name="password" id="password"><br/>
             </td>
@@ -53,10 +53,10 @@
             <td>
                 <label>
                     <select th:name="roleId" id="role">
-                        <option th:each="role:${sendDTO.getRoles()}"
+                        <option th:each="role:${sendDTO.roles()}"
                                 th:value="${role.getId()}"
                                 th:text="${role.getRole()}"
-                                th:selected="${role.getId() == sendDTO.getRoleId()}"
+                                th:selected="${role.getId() == sendDTO.roleId()}"
                         ></option>
                     </select>
                 </label>
@@ -65,6 +65,6 @@
     </table>
     <input type="submit" value="Добавить">
 </form>
-<a th:text="${sendDTO.getEmployeeName()}"></a>
+<a th:text="${sendDTO.employeeName()}"></a>
 </body>
 </html>

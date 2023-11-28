@@ -7,6 +7,7 @@ import com.naumen.anticafe.service.guestCart.GuestCartService;
 import com.naumen.anticafe.service.order.CalculationTotalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
@@ -16,7 +17,7 @@ public class CalculationTotalServiceImpl implements CalculationTotalService {
     public CalculationTotalServiceImpl(GuestCartService guestCartService) {
         this.guestCartService = guestCartService;
     }
-
+    @Transactional
     public void calculateTotal(Order order) {
         //список всех гостей
         List<GuestCart> guestCartList = guestCartService.getGuestCartListByOrder(order);

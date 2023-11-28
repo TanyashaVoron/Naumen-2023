@@ -6,6 +6,7 @@ import com.naumen.anticafe.error.NotFoundException;
 import com.naumen.anticafe.helper.SearchOrderManagementHelper;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,6 +23,7 @@ public class SearchController {
     }
 
     @GetMapping()
+    @Transactional(readOnly = true)
     public String showSearch(Model model,
                              @ModelAttribute ShowDTO dto,
                              @AuthenticationPrincipal(expression = "username") String employeeUsername) throws NotFoundException {

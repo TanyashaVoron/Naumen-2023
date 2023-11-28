@@ -25,37 +25,37 @@
     <th>Активирован</th>
     <th>Действия</th>
   </tr>
-  <tr th:each="employee : ${sendDTO.getEmployees()}">
+  <tr th:each="employee : ${sendDTO.employees()}">
     <td>
-      <a th:text="${employee.getId()}"/>
+      <a th:text="${employee.id()}"/>
     </td>
     <td>
-      <a th:text="${employee.getName()}"/>
+      <a th:text="${employee.name()}"/>
     </td>
     <td>
-      <a th:text="${employee.getUsername()}"/>
+      <a th:text="${employee.username()}"/>
     </td>
     <td>
-        <a  th:text="${employee.getRole()}"/>
+        <a  th:text="${employee.role()}"/>
     </td>
     <td>
-      <a  th:if="${employee.isEnabled()}" th:text="АКТИВЕН"/>
-      <a  th:if="${!employee.isEnabled()}" th:text="ДЕАКТИВИРОВАН"/>
+      <a  th:if="${employee.enabled()}" th:text="АКТИВЕН"/>
+      <a  th:if="${!employee.enabled()}" th:text="ДЕАКТИВИРОВАН"/>
     </td>
     <td>
-      <a th:href="@{/employee/edit/{id}(id=${employee.getId()})}" th:text="'Изменить'"></a>
-      <form th:if="${employee.isEnabled()}" th:method="POST" th:action="@{/employee/deactivate}">
-        <input type="hidden" th:value="${employee.getId()}" th:name="employeeId">
+      <a th:href="@{/employee/edit/{id}(id=${employee.id()})}" th:text="'Изменить'"></a>
+      <form th:if="${employee.enabled()}" th:method="POST" th:action="@{/employee/deactivate}">
+        <input type="hidden" th:value="${employee.id()}" th:name="employeeId">
         <input type="submit" value="Деактивировать">
       </form>
-      <form th:if="${!employee.isEnabled()}" th:method="POST" th:action="@{/employee/activate}">
-        <input type="hidden" th:value="${employee.getId()}" th:name="employeeId">
+      <form th:if="${!employee.enabled()}" th:method="POST" th:action="@{/employee/activate}">
+        <input type="hidden" th:value="${employee.id()}" th:name="employeeId">
         <input type="submit" value="Активировать">
       </form>
     </td>
   </tr>
 </table>
 <br/>
-<a th:text="${sendDTO.getNameEmployee()}"></a>
+<a th:text="${sendDTO.nameEmployee()}"></a>
 </body>
 </html>

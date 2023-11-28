@@ -1,12 +1,4 @@
 package com.naumen.anticafe.DTO.receive.order;
+public record AddGuestDTO(Long orderId) {
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@AllArgsConstructor
-public class AddGuestDTO {
-    private Long orderId;
 }

@@ -41,13 +41,13 @@ public class SearchOrderManagementHelperImpl implements SearchOrderManagementHel
             gameZoneList.add(new GameZoneDTO(gz.getId(),gz.getName()));
         GameZone gameZone = null;
         Employee employee = null;
-        if (dto.getGameZoneId() != null) gameZone = gameZoneService.getGameZone(dto.getGameZoneId());
-        if (dto.getEmployeeSearch() != null) employee = employeeService.getEmployee(dto.getEmployeeSearch());
+        if (dto.gameZoneId() != null) gameZone = gameZoneService.getGameZone(dto.gameZoneId());
+        if (dto.employeeSearch() != null) employee = employeeService.getEmployee(dto.employeeSearch());
         List<Order> orders = searchOrderService.getOrderByIdOrGameZoneOrPayment(
-                dto.getOrderId(),
+                dto.orderId(),
                 gameZone,
-                dto.getPayment(),
-                dto.getReserveDate(),
+                dto.payment(),
+                dto.reserveDate(),
                 employee,
                 orderMarker
         );

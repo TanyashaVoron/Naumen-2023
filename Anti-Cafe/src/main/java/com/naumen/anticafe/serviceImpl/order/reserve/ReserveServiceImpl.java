@@ -11,6 +11,7 @@ import com.naumen.anticafe.service.order.SearchOrderService;
 import com.naumen.anticafe.service.order.reserve.ReserveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -35,6 +36,7 @@ public class ReserveServiceImpl implements ReserveService {
         this.searchOrderService = searchOrderService;
     }
     @Override
+    @Transactional(readOnly = true)
     public List<String> getAllDayOfReserve() {
         List<String> dayOfReserveList = new ArrayList<>();
         //создаем переменную текущего дня для заполнения
@@ -48,6 +50,7 @@ public class ReserveServiceImpl implements ReserveService {
     }
 
     @Override
+    @Transactional
     public void setReserve(Order order,
                            String dayOfMount,
                            Long gameZoneId,
@@ -71,6 +74,7 @@ public class ReserveServiceImpl implements ReserveService {
     }
 
     @Override
+    @Transactional
     public void deleteReserve(Order order) throws NotFoundException {
         paymentOrderService.checkPaymentOrder(order);
         order.setGameZone(null);

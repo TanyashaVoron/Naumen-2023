@@ -8,6 +8,7 @@ import com.naumen.anticafe.service.guest.GuestService;
 import com.naumen.anticafe.service.guestCart.GuestCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class GuestCartServiceImpl implements GuestCartService {
         this.guestCartRepository = guestCartRepository;
     }
     @Override
+    @Transactional(readOnly = true)
     public List<GuestCart> getGuestCartListByOrder(Order order) {
         List<Guest> guests = order.getGuests();
         List<GuestCart> guestCartList = new ArrayList<>();
@@ -29,9 +31,11 @@ public class GuestCartServiceImpl implements GuestCartService {
         return guestCartList;
     }
     @Override
+    @Transactional(readOnly = true)
     public List<GuestCart> getProductGuest(Guest guest) {
         return guestCartRepository.findAllByGuest(guest);
     }
+    @Transactional(readOnly = true)
     public Long countByGuest(Guest guest){
         return guestCartRepository.countByGuest(guest);
     }

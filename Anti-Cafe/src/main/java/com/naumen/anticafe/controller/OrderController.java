@@ -1,8 +1,8 @@
 package com.naumen.anticafe.controller;
 
-import com.naumen.anticafe.DTO.object.GameZoneReserveDTO;
-import com.naumen.anticafe.DTO.object.GuestCartOrderDTO;
-import com.naumen.anticafe.DTO.object.GuestOrderDTO;
+import com.naumen.anticafe.DTO.send.order.GameZoneReserveDTO;
+import com.naumen.anticafe.DTO.send.order.GuestCartOrderDTO;
+import com.naumen.anticafe.DTO.send.order.GuestOrderDTO;
 import com.naumen.anticafe.DTO.receive.order.*;
 import com.naumen.anticafe.DTO.send.order.ShowReserveSendDTO;
 import com.naumen.anticafe.DTO.send.order.ShowSendDTO;
@@ -22,11 +22,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
@@ -63,9 +63,10 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public String showOrder(@PathVariable("id") Long orderId,
                             @AuthenticationPrincipal(expression = "username") String employeeUsername,
-                            @ModelAttribute ShowDTO DTO,
+                            @ModelAttribute ShowDTO dto,
                             Model model) throws NotFoundException {
         Order order = orderService.getOrder(orderId);
         Employee employee = employeeService.searchEmployee(employeeUsername);
@@ -93,7 +94,7 @@ public class OrderController {
             guestCartList.add(guestCartOrderDTO);
         }
         if (order.getGameZone() == null) {
-            gameZoneName = Optional.ofNullable(null);
+            gameZoneName = Optional.empty();
             reserveDate = null;
             reserveTime = null;
             endReserve = null;
@@ -108,8 +109,8 @@ public class OrderController {
         ShowSendDTO sendDTO = new ShowSendDTO(
                 guestsList,
                 guestCartList,
-                Optional.ofNullable(DTO.getGuestIdError()),
-                Optional.ofNullable(DTO.getGuestMessageError()),
+                Optional.ofNullable(dto.guestIdError()),
+                Optional.ofNullable(dto.guestMessageError()),
                 employee.getName(),
                 order.getManager().getName(),
                 gameZoneName,
@@ -128,13 +129,14 @@ public class OrderController {
     }
 
     @GetMapping("/{id}/reserve")
+    @Transactional(readOnly = true)
     public String showReserve(@PathVariable("id") Long orderId,
-                              @ModelAttribute ShowReserveDTO DTO,
+                              @ModelAttribute ShowReserveDTO dto,
                               @AuthenticationPrincipal(expression = "username") String employeeUsername,
                               Model model) throws NotFoundException, NoAccessToOperation {
         Employee employee = employeeService.searchEmployee(employeeUsername);
         Order order = orderService.getOrder(orderId);
-        if(!accessService.isAccessOrder(employee,order))
+        if (!accessService.isAccessOrder(employee, order))
             throw new NoAccessToOperation(
                     "У вас нет доступа. Обратитесь к владельцу, Администратору или главному менеджеру",
                     order.getManager().getName(),
@@ -142,37 +144,38 @@ public class OrderController {
             );
         //создает лист игровых зон
         List<GameZoneReserveDTO> gameZoneList = new ArrayList<>();
-        for(GameZone gz : gameZoneService.getGameZoneList())
-            gameZoneList.add(new GameZoneReserveDTO(gz.getId(),gz.getName()));
+        for (GameZone gz : gameZoneService.getGameZoneList())
+            gameZoneList.add(new GameZoneReserveDTO(gz.getId(), gz.getName()));
         //создает список дней для резервов
         List<String> dayOfReserve = reserveService.getAllDayOfReserve();
         //проверяем передачу дня и игровой зоны
+        int[][] freeTimesAndMaxHourReserve = null;
+        if (dto.dayMonth() != null && dto.gameZoneId() != null) {
+            //передает игровую зону
+            GameZone gameZone = gameZoneService.getGameZone(dto.gameZoneId());
+            //передает свободные часы для резерва и так же максимальное время для резерва
+            freeTimesAndMaxHourReserve = reserveService.getFreeTimesAndMaxHourReserve(gameZone, dto.dayMonth());
+        }
         ShowReserveSendDTO sendDTO = new ShowReserveSendDTO(
                 employee.getName(),
                 orderId,
                 gameZoneList,
                 dayOfReserve,
-                Optional.ofNullable(null),
-                Optional.ofNullable(DTO.getHourError()),
-                DTO.getHourMessageError()
+                dto.gameZoneId(),
+                dto.dayMonth(),
+                Optional.ofNullable(freeTimesAndMaxHourReserve),
+                Optional.ofNullable(dto.hourError()),
+                dto.hourMessageError()
         );
-        if (DTO.getDayMonth()!=null && DTO.getGameZoneId()!= null) {
-            //передает игровую зону
-            GameZone gameZone = gameZoneService.getGameZone(DTO.getGameZoneId());
-            //передает свободные часы для резерва и так же максимальное время для резерва
-            int[][] freeTimesAndMaxHourReserve = reserveService.getFreeTimesAndMaxHourReserve(gameZone, DTO.getDayMonth());
-            sendDTO.setGameZoneId(DTO.getGameZoneId());
-            sendDTO.setDayMonth(DTO.getDayMonth());
-            sendDTO.setFreeTimes(Optional.of(freeTimesAndMaxHourReserve));
-        }
-        model.addAttribute("sendDTO",sendDTO);
+        model.addAttribute("sendDTO", sendDTO);
         return "order/reserve";
     }
 
     @PostMapping("/markForDeletion")
-    public String markForDeletion(@ModelAttribute MarkForDeletionDTO DTO) throws NotFoundException{
+    @Transactional
+    public String markForDeletion(@ModelAttribute MarkForDeletionDTO dto) throws NotFoundException {
         //находит заказ и проверяет на доступ к изменению этим сотрудником
-        Order order = orderService.getOrder(DTO.getOrderId());
+        Order order = orderService.getOrder(dto.orderId());
         //маркирует заказ на удаление
         order.setTaggedDelete(true);
         order.setTimerTaggedDelete(LocalDate.now());
@@ -181,73 +184,77 @@ public class OrderController {
     }
 
     @PostMapping("/reserve/Add")
+    @Transactional
     public String addReserve(@RequestParam("orderId") Long orderId,
-                             @Valid @ModelAttribute AddReserveDTO DTO,
-                             BindingResult bindingResult) throws NotFoundException{
-        if(bindingResult.hasErrors()){
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("redirect:/order/")
-                    .append(orderId)
-                    .append("/reserve?dayMonth=").append(DTO.getDayOfMount())
-                    .append("&gameZoneId=").append(DTO.getGameZoneId())
-                    .append("&hourError=").append(DTO.getFreeTime())
-                    .append("&hourMessageError=").append(UriComponentsBuilder.fromUriString(
-                            bindingResult.getFieldErrors().get(0).getDefaultMessage()).build().encode());
-            return  stringBuilder.toString();
+                             @Valid @ModelAttribute AddReserveDTO dto,
+                             BindingResult bindingResult) throws NotFoundException {
+        if (bindingResult.hasErrors()) {
+            return "redirect:/order/" +
+                    orderId +
+                    "/reserve?dayMonth=" + dto.dayOfMount() +
+                    "&gameZoneId=" + dto.gameZoneId() +
+                    "&hourError=" + dto.freeTime() +
+                    "&hourMessageError=" + UriComponentsBuilder.fromUriString(
+                    bindingResult.getFieldErrors().get(0).getDefaultMessage()).build().encode();
         }
         //находит заказ и проверяет на доступ к изменению этим сотрудником
         Order order = orderService.getOrder(orderId);
-        reserveService.setReserve(order, DTO.getDayOfMount(), DTO.getGameZoneId(), DTO.getFreeTime(), DTO.getMaxHour(), DTO.getHour());
+        reserveService.setReserve(order, dto.dayOfMount(), dto.gameZoneId(), dto.freeTime(), dto.maxHour(), dto.hour());
         orderService.save(order);
         return "redirect:/order/" + orderId;
     }
 
 
     @PostMapping("/deleteGuest")
-    public String deleteGuest(@ModelAttribute DeleteGuestDTO DTO,
-                              RedirectAttributes redirectAttributes) throws NotFoundException{
+    @Transactional
+    public String deleteGuest(@ModelAttribute DeleteGuestDTO dto,
+                              RedirectAttributes redirectAttributes) throws NotFoundException {
         //находит заказ и проверяет на доступ к изменению этим сотрудником
-        Order order = orderService.getOrder(DTO.getOrderId());
+        Order order = orderService.getOrder(dto.orderId());
         //проверяет оплату
         paymentOrderService.checkPaymentOrder(order);
         //удаляет гостя без товаров
-        Guest guest = guestService.getGuest(DTO.getGuestId(), order);
+        Guest guest = guestService.getGuest(dto.guestId(), order);
         long IdGuestCountNotNull = guestService.deleteGuest(guest);
         if (IdGuestCountNotNull != 0) {
-            redirectAttributes.addAttribute("errorGuestId", IdGuestCountNotNull);
-            redirectAttributes.addAttribute("errorGuestMessage", "У гостя есть товары");
-            return "redirect:/order/" + DTO.getOrderId();
+            redirectAttributes.addAttribute("guestIdError", IdGuestCountNotNull);
+            redirectAttributes.addAttribute("guestMessageError", "У гостя есть товары");
+            return "redirect:/order/" + dto.orderId();
         }
-        return "redirect:/order/" + DTO.getOrderId();
+        return "redirect:/order/" + dto.orderId();
     }
 
     @PostMapping("/deleteReserve")
-    public String deleteReserve(@ModelAttribute DeleteReserveDTO DTO) throws NotFoundException{
+    @Transactional
+    public String deleteReserve(@ModelAttribute DeleteReserveDTO dto) throws NotFoundException {
         //находит заказ и проверяет на доступ к изменению этим сотрудником
-        Order order = orderService.getOrder(DTO.getOrderId());
+        Order order = orderService.getOrder(dto.orderId());
         reserveService.deleteReserve(order);
         orderService.save(order);
-        return "redirect:/order/" + DTO.getOrderId();
+        return "redirect:/order/" + dto.orderId();
     }
 
     @PostMapping("/addGuest")
-    public String addGuest(@ModelAttribute AddGuestDTO DTO) throws NotFoundException{
+    @Transactional
+    public String addGuest(@ModelAttribute AddGuestDTO dto) throws NotFoundException {
         //находит заказ и проверяет на доступ к изменению этим сотрудником
-        Order order = orderService.getOrder(DTO.getOrderId());
+        Order order = orderService.getOrder(dto.orderId());
         paymentOrderService.checkPaymentOrder(order);
         guestService.addGuest(order);
-        return "redirect:/order/" + DTO.getOrderId();
+        return "redirect:/order/" + dto.orderId();
     }
 
     @PostMapping("/payment")
-    public String payment(@ModelAttribute PaymentDTO DTO) throws NotFoundException {
-        Order order = orderService.getOrder(DTO.getOrderId());
+    @Transactional
+    public String payment(@ModelAttribute PaymentDTO dto) throws NotFoundException {
+        Order order = orderService.getOrder(dto.orderId());
         paymentOrderService.payment(order);
         orderService.save(order);
-        return "redirect:/order/" + DTO.getOrderId();
+        return "redirect:/order/" + dto.orderId();
     }
 
     @PostMapping("/create")
+    @Transactional
     public String createOrder(@AuthenticationPrincipal(expression = "username") String employeeUsername) throws NotFoundException {
         Order order = orderService.createOrder(employeeService.searchEmployee(employeeUsername));
         orderService.save(order);

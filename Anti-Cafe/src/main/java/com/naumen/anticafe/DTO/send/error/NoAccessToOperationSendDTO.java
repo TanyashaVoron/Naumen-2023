@@ -1,14 +1,7 @@
 package com.naumen.anticafe.DTO.send.error;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+public record NoAccessToOperationSendDTO(    String nameEmployeeNow,
+        String ownerOrderEmployeeName,
+        String message) {
 
-@Getter
-@Setter
-@AllArgsConstructor
-public class NoAccessToOperationSendDTO {
-    String nameEmployeeNow;
-    String ownerOrderEmployeeName;
-    String message;
 }

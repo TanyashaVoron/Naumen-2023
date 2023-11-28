@@ -1,6 +1,6 @@
 package com.naumen.anticafe.serviceImpl.Employee;
 
-import com.naumen.anticafe.DTO.object.EmployeeDTO;
+import com.naumen.anticafe.DTO.receive.employee.EmployeeDTO;
 import com.naumen.anticafe.domain.Employee;
 import com.naumen.anticafe.domain.Role;
 import com.naumen.anticafe.error.NotFoundException;
@@ -23,7 +23,6 @@ public class RegistrationEmployeeServiceImpl implements RegistrationEmployeeServ
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
     }
-
     @Override
     @Transactional
     public void registrationEmployee(EmployeeDTO employeeDTO) throws NotFoundException {
@@ -33,11 +32,11 @@ public class RegistrationEmployeeServiceImpl implements RegistrationEmployeeServ
     @Override
     @Transactional
     public void updateEmployee(EmployeeDTO employeeDTO, Employee employee) throws NotFoundException {
-        employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
-        employee.setUsername(employeeDTO.getUsername());
-        Role role = roleService.getRole(employeeDTO.getRoleId());
+        employee.setPassword(passwordEncoder.encode(employeeDTO.password()));
+        employee.setUsername(employeeDTO.username());
+        Role role = roleService.getRole(employeeDTO.roleId());
         employee.setRole(role);
-        employee.setName(employeeDTO.getName());
+        employee.setName(employeeDTO.name());
         employeeRepository.save(employee);
     }
 }

@@ -1,10 +1,8 @@
 package com.naumen.anticafe.controller;
 
-import com.naumen.anticafe.DTO.object.EmployeeDTO;
-import com.naumen.anticafe.DTO.receive.employee.ActivateDTO;
-import com.naumen.anticafe.DTO.receive.employee.DeactivateDTO;
-import com.naumen.anticafe.DTO.receive.employee.ShowDTO;
-import com.naumen.anticafe.DTO.receive.employee.ShowAddEditDTO;
+import com.naumen.anticafe.DTO.receive.employee.EmployeeDTO;
+import com.naumen.anticafe.DTO.receive.employee.*;
+import com.naumen.anticafe.DTO.send.employee.EmployeeSendDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowAddSendDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowEditSendDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowSendDTO;
@@ -19,12 +17,15 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -44,84 +45,86 @@ public class EmployeeController {
     }
 
     @GetMapping("/add")
-    public String showAddEmployee(@ModelAttribute ShowAddEditDTO DTO,
+    @Transactional(readOnly = true)
+    public String showAddEmployee(@ModelAttribute ShowAddDTO dto,
                                   @AuthenticationPrincipal(expression = "name") String employee, Model model) {
-        if (DTO.getName() == null) DTO.setName("");
-        if (DTO.getUsername() == null) DTO.setUsername("");
-        if (DTO.getRoleId() == null) DTO.setRoleId(1);
         ShowAddSendDTO sendDTO = new ShowAddSendDTO(
-                Optional.ofNullable(DTO.getNameError()),
-                Optional.ofNullable(DTO.getUsernameError()),
-                Optional.ofNullable(DTO.getUsernameDuplicateError()),
-                Optional.ofNullable(DTO.getPasswordError()),
-                DTO.getName(),
-                DTO.getUsername(),
-                DTO.getRoleId(),
+                Optional.ofNullable(dto.nameError()),
+                Optional.ofNullable(dto.usernameError()),
+                Optional.ofNullable(dto.usernameDuplicateError()),
+                Optional.ofNullable(dto.passwordError()),
+                dto.name()==null?"":dto.name(),
+                dto.username()==null?"":dto.username(),
+                dto.roleId()==null?1:dto.roleId(),
                 employee,
                 roleService.getAllRole()
         );
         model.addAttribute("sendDTO", sendDTO);
         return "employee/addEmployee";
     }
-
     @GetMapping
-    public String showEmployee(@ModelAttribute ShowDTO DTO,
+    @Transactional(readOnly = true)
+    public String showEmployee(@ModelAttribute ShowDTO dto,
                                @AuthenticationPrincipal(expression = "name") String employee,
                                Model model) {
-        ShowSendDTO sendDTO = new ShowSendDTO();
-        //проверяет юзер нейм
-        sendDTO.setNameEmployee(employee);
-        if (DTO.getUsername()!= null && !DTO.getUsername().equals("")) {
+        List<EmployeeSendDTO> employeeSendDTOList = new ArrayList<>();
+        if (dto.username()!= null && !dto.username().isEmpty()) {
             //если не пустой, то выискивает сотрудников с фрагментом
-            for (Employee e : searchEmployeeService.getEmployeeUsernameContains(DTO.getUsername())) {
-                sendDTO.setEmployeeDTO(
+            for (Employee e : searchEmployeeService.getEmployeeUsernameContains(dto.username())) {
+                EmployeeSendDTO employeeSendDTO = new EmployeeSendDTO(
                         e.getId(),
                         e.getName(),
                         e.getUsername(),
                         e.getRole().getRole(),
                         e.isEnabled()
                 );
+                employeeSendDTOList.add(employeeSendDTO);
             }
         } else {
             //если пустой сначала выискивает активные а после добавляет не активные
             for (Employee e : employeeService.getEmployeeList(true)) {
-                sendDTO.setEmployeeDTO(
+                EmployeeSendDTO employeeSendDTO = new EmployeeSendDTO(
                         e.getId(),
                         e.getName(),
                         e.getUsername(),
                         e.getRole().getRole(),
                         e.isEnabled()
                 );
+                employeeSendDTOList.add(employeeSendDTO);
             }
             for (Employee e : employeeService.getEmployeeList(false)) {
-                sendDTO.setEmployeeDTO(
+                EmployeeSendDTO employeeSendDTO = new EmployeeSendDTO(
                         e.getId(),
                         e.getName(),
                         e.getUsername(),
                         e.getRole().getRole(),
                         e.isEnabled()
                 );
+                employeeSendDTOList.add(employeeSendDTO);
             }
         }
+        ShowSendDTO sendDTO = new ShowSendDTO(employee,employeeSendDTOList);
         model.addAttribute("sendDTO", sendDTO);
         return "employee/employee";
     }
 
     @GetMapping("/edit/{id}")
+    @Transactional(readOnly = true)
     public String showEdit(@PathVariable("id") Long employeeId,
-                           @ModelAttribute ShowAddEditDTO DTO,
+                           @ModelAttribute ShowEditDTO dto,
                            @AuthenticationPrincipal(expression = "name") String employee,
                            Model model) throws NotFoundException {
         Employee employeeEdit = employeeService.getEmployee(employeeId);
         ShowEditSendDTO sendDTO = new ShowEditSendDTO(
-                Optional.ofNullable(DTO.getNameError()),
-                Optional.ofNullable(DTO.getUsernameError()),
-                Optional.ofNullable(DTO.getPasswordError()),
+                Optional.ofNullable(dto.nameError()),
+                Optional.ofNullable(dto.username()),
+                Optional.ofNullable(dto.usernameDuplicateError()),
+                Optional.ofNullable(dto.passwordError()),
                 employee,
                 employeeEdit.getId(),
-                employeeEdit.getName(),
                 employeeEdit.getUsername(),
                 employeeEdit.getRole().getId(),
+                employeeEdit.getName(),
                 roleService.getAllRole()
         );
         model.addAttribute("sendDTO", sendDTO);
@@ -129,48 +132,52 @@ public class EmployeeController {
     }
 
     @PostMapping("/add")
-    public String addEmployee(@Valid @ModelAttribute EmployeeDTO DTO,
+    @Transactional
+    public String addEmployee(@Valid @ModelAttribute EmployeeDTO dto,
                               BindingResult bindingResult,
                               RedirectAttributes redirectAttributes) throws NotFoundException {
         //если есть ошибки в валидации то переадресует все ошибки в GET
-        Optional<Employee> employee = employeeService.searchEmployeeDuplicate(DTO.getUsername());
+        Optional<Employee> employee = employeeService.searchEmployeeDuplicate(dto.username());
         if (employee.isPresent())
             bindingResult.addError(new FieldError("addDTO", "usernameDuplicate", "Имя пользователя уже занято"));
         if (bindingResult.hasErrors()) {
             for (FieldError fe : bindingResult.getFieldErrors()) {
                 redirectAttributes.addAttribute(fe.getField() + "Error", fe.getDefaultMessage());
             }
-            redirectAttributes.addAttribute("name", DTO.getName());
-            redirectAttributes.addAttribute("username", DTO.getUsername());
+            redirectAttributes.addAttribute("name", dto.name());
+            redirectAttributes.addAttribute("username", dto.username());
             return "redirect:/employee/add";
         }
-        registrationEmployeeService.registrationEmployee(DTO);
+        registrationEmployeeService.registrationEmployee(dto);
         return "redirect:/employee";
     }
 
     @PostMapping("/deactivate")
-    public String deactivateEmployee(@ModelAttribute DeactivateDTO DTO) throws NotFoundException {
-        Employee employee = employeeService.getEmployee(DTO.getEmployeeId());
+    @Transactional
+    public String deactivateEmployee(@ModelAttribute DeactivateDTO dto) throws NotFoundException {
+        Employee employee = employeeService.getEmployee(dto.employeeId());
         employee.setEnabled(false);
         employeeService.saveEmployee(employee);
         return "redirect:/employee";
     }
 
     @PostMapping("/activate")
+    @Transactional
     public String activateEmployee(@ModelAttribute ActivateDTO DTO, RedirectAttributes redirectAttributes) throws NotFoundException {
-        Employee employee = employeeService.getEmployee(DTO.getEmployeeId());
+        Employee employee = employeeService.getEmployee(DTO.employeeId());
         employee.setEnabled(true);
         employeeService.saveEmployee(employee);
         return "redirect:/employee";
     }
 
     @PostMapping("/edit/{id}")
+    @Transactional
     public String editEmployee(@PathVariable("id") Long employeeId,
-                               @Valid @ModelAttribute EmployeeDTO DTO,
+                               @Valid @ModelAttribute EmployeeDTO dto,
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) throws NotFoundException {
         Employee employee = employeeService.getEmployee(employeeId);
-        Optional<Employee> optionalEmployee = employeeService.searchEmployeeDuplicate(DTO.getUsername());
+        Optional<Employee> optionalEmployee = employeeService.searchEmployeeDuplicate(dto.username());
         if (optionalEmployee.isPresent())
             if(!optionalEmployee.get().getName().equals(employee.getName()))
                 bindingResult.addError(new FieldError("addDTO", "usernameDuplicate", "Имя пользователя уже занято"));
@@ -178,12 +185,12 @@ public class EmployeeController {
             for (FieldError fe : bindingResult.getFieldErrors()) {
                 redirectAttributes.addAttribute(fe.getField() + "Error", fe.getDefaultMessage());
             }
-            redirectAttributes.addAttribute("name", DTO.getName());
-            redirectAttributes.addAttribute("username", DTO.getUsername());
+            redirectAttributes.addAttribute("name", dto.name());
+            redirectAttributes.addAttribute("username", dto.username());
             return "redirect:/employee/edit/"+employeeId;
         }
         //находит и обновляет сотрудника
-        registrationEmployeeService.updateEmployee(DTO, employee);
+/*        registrationEmployeeService.updateEmployee(DTO, employee);*/
         return "redirect:/";
     }
 }

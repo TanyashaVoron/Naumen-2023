@@ -6,8 +6,8 @@
 </head>
 <body>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-<a th:text="${sendDTO.getMessage()}"/>
-<a th:text="'Владелец: '+${sendDTO.getNameEmployeeNow()}"/>
-<a th:text="'Сотрудник: '+${sendDTO.getOwnerOrderEmployeeName()}"/>
+<a th:text="${sendDTO.message()}"/>
+<a th:text="'Владелец: '+${sendDTO.nameEmployeeNow()}"/>
+<a th:text="'Сотрудник: '+${sendDTO.ownerOrderEmployeeName()}"/>
 </body>
 </html>

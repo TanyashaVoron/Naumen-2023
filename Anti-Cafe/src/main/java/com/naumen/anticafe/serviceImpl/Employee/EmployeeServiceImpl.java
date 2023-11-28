@@ -21,9 +21,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Optional<Employee> searchEmployeeDuplicate(String username) {
-        return employeeRepository.findByName(username);
+        return employeeRepository.findByUsername(username);
     }
-
+    @Transactional(readOnly = true)
     public Employee searchEmployee(String username) throws NotFoundException {
         Optional<Employee> optionalEmployee = employeeRepository.findByUsername(username);
         if(optionalEmployee.isEmpty()) throw new NotFoundException("Пользователь с таким логином не найден");

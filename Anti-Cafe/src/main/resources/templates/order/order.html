@@ -6,26 +6,26 @@
 </head>
 <body>
 <a th:href="@{/search}">Назад</a>
-<form th:if="${!sendDTO.isTaggedDelete()&&sendDTO.isAccess()}" th:method="POST" th:action="@{/order/markForDeletion}">
-    <input type="hidden" th:value="${sendDTO.getOrderId()}" th:name="orderId">
+<form th:if="${!sendDTO.taggedDelete()&&sendDTO.access()}" th:method="POST" th:action="@{/order/markForDeletion}">
+    <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
     <input type="submit" value="Пометить на удаление"/>
 </form>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-<table th:if="${sendDTO.getGameZone().isEmpty()}">
+<table th:if="${sendDTO.gameZone().isEmpty()}">
     <tr>
         <th>Официант</th>
         <th>Резерв столов</th>
     </tr>
     <tr>
         <td>
-            <a th:text="${sendDTO.getEmployeeOrder()}"/>
+            <a th:text="${sendDTO.employeeOrder()}"/>
         </td>
         <td>
-            <a th:if="${sendDTO.isAccess()}" th:href="@{/order/{id}/reserve(id=${sendDTO.getOrderId()})}" th:text="'Добавить резерв'"></a>
+            <a th:if="${sendDTO.access()}" th:href="@{/order/{id}/reserve(id=${sendDTO.orderId()})}" th:text="'Добавить резерв'"></a>
         </td>
     </tr>
 </table>
-<table th:if="${sendDTO.getGameZone().isPresent()}">
+<table th:if="${sendDTO.gameZone().isPresent()}">
     <tr>
         <th>Официант</th>
         <th>Игровая зона</th>
@@ -36,24 +36,24 @@
     </tr>
     <tr>
         <td>
-            <a th:text="${sendDTO.getEmployeeOrder()}"/>
+            <a th:text="${sendDTO.employeeOrder()}"/>
         </td>
         <td>
-            <a th:text="${sendDTO.getGameZoneId()}+':'+${sendDTO.getGameZone().get()}"/>
+            <a th:text="${sendDTO.gameZoneId()}+':'+${sendDTO.gameZone().get()}"/>
         </td>
         <td>
-            <a th:text="${sendDTO.getReserveDate()}"/>
+            <a th:text="${sendDTO.reserveDate()}"/>
         </td>
         <td>
-             <a  th:text="${sendDTO.getReserveTime()}"/>
+             <a  th:text="${sendDTO.reserveTime()}"/>
         </td>
         <td>
-            <a th:text="${sendDTO.getEndReserve()}"/>
+            <a th:text="${sendDTO.endReserve()}"/>
         </td>
         <td>
-            <a th:if="${sendDTO.isAccess()}" th:href="@{/order/{id}/reserve(id=${sendDTO.getOrderId()})}" th:text="'Изменить резерв'"></a>
-            <form th:if="${sendDTO.isAccess()}" th:method="POST" th:action="@{/order/deleteReserve}">
-                <input type="hidden" th:value="${sendDTO.getOrderId()}" th:name="orderId">
+            <a th:if="${sendDTO.access()}" th:href="@{/order/{id}/reserve(id=${sendDTO.orderId()})}" th:text="'Изменить резерв'"></a>
+            <form th:if="${sendDTO.access()}" th:method="POST" th:action="@{/order/deleteReserve}">
+                <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
                 <input type="submit" th:value="'Отменить резерв'">
             </form>
         </td>
@@ -72,23 +72,23 @@
                     <th>Гость</th>
                     <th>Действие</th>
                 </tr>
-                <tr th:each="guest:${sendDTO.getGuestList()}">
+                <tr th:each="guest:${sendDTO.guestList()}">
                     <td>
-                        <a th:href="@{/guest/{id}?order={order_id}(order_id=${sendDTO.getOrderId()},id=${guest.getId()})}" th:text="${guest.getName()}"></a>
+                        <a th:href="@{/guest/{id}?order={order_id}(order_id=${sendDTO.orderId()},id=${guest.id()})}" th:text="${guest.name}"></a>
                     </td>
                     <td>
-                        <a th:if="${sendDTO.getGuestMessageError().isPresent()&&sendDTO.getGuestIdError().get().equals(guest.getId())}" th:text="${sendDTO.getGuestMessageError().get()}"></a>
-                        <form th:if="${sendDTO.isAccess()}" th:method="POST" th:action="@{/order/deleteGuest}">
-                            <input type="hidden" th:value="${guest.getId()}" th:name="guestId">
-                            <input type="hidden" th:value="${sendDTO.getOrderId()}" th:name="orderId">
+                        <a th:if="${sendDTO.guestMessageError().isPresent()&&sendDTO.guestIdError().get().equals(guest.id())}" th:text="${sendDTO.guestMessageError().get()}"></a>
+                        <form th:if="${sendDTO.access()}" th:method="POST" th:action="@{/order/deleteGuest}">
+                            <input type="hidden" th:value="${guest.id()}" th:name="guestId">
+                            <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
                             <input type="submit" th:value="'Удалить клиента'">
                         </form>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <form th:if="${sendDTO.isAccess()}" th:method="POST" th:action="@{/order/addGuest}">
-                            <input type="hidden" th:value="${sendDTO.getOrderId()}" th:name="orderId">
+                        <form th:if="${sendDTO.access()}" th:method="POST" th:action="@{/order/addGuest}">
+                            <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
                             <input type="submit" value="Добавить гостя"/>
                         </form>
                     </td>
@@ -103,18 +103,18 @@
                     <th>Количество</th>
                     <th>Гость</th>
                 </tr>
-                <tr th:each="product:${sendDTO.getGuestCartList()}">
+                <tr th:each="product:${sendDTO.guestCartList()}">
                     <td>
-                        <a th:text="${product.getId()}"></a>
+                        <a th:text="${product.id()}"></a>
                     </td>
                     <td>
-                        <a th:text="${product.getProductName()}"></a>
+                        <a th:text="${product.productName()}"></a>
                     </td>
                     <td>
-                        <a th:text="${product.getQuantity()}"></a>
+                        <a th:text="${product.quantity()}"></a>
                     </td>
                     <td>
-                        <a th:text="${product.getGuestName()}"></a>
+                        <a th:text="${product.guestName()}"></a>
                     </td>
                 </tr>
             </table>
@@ -122,13 +122,13 @@
     </tr>
 </table>
 <hr>
-<form th:if="${!sendDTO.isPayment()}" th:method="POST" th:action="@{/order/payment}">
-    <input type="hidden" th:value="${sendDTO.getOrderId()}" th:name="orderId">
+<form th:if="${!sendDTO.payment()}" th:method="POST" th:action="@{/order/payment}">
+    <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
     <input type="submit" value="Оплатить"/>
 </form>
-<a th:if="${sendDTO.isPayment()}" th:text="Оплачено"></a>
+<a th:if="${sendDTO.payment()}" th:text="Оплачено"></a>
 <a th:text="'Итог: '+${sendDTO.total}">user</a>
-<a th:text="${sendDTO.getEmployee()}"></a>
+<a th:text="${sendDTO.employee()}"></a>
 <br/>
 </body>
 </html>

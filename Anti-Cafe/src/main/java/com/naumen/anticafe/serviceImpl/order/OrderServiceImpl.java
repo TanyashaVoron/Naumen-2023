@@ -8,6 +8,7 @@ import com.naumen.anticafe.repository.OrderRepository;
 import com.naumen.anticafe.service.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +25,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public Order createOrder(Employee employee) {
         Order order = new Order();
         order.setManager(employee);
@@ -35,11 +37,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Order> getOrderMarkDeletion(LocalDate localDate) {
         return orderRepository.findAllByTimerTaggedDelete(localDate);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Order getOrder(Long orderId) throws NotFoundException {
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         if (optionalOrder.isEmpty()) throw new NotFoundException("Заказ не найден");
@@ -47,10 +51,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void save(Order order) {
         orderRepository.save(order);
     }
     @Override
+    @Transactional
     public void deleteOrderCascade(Order order) throws NotFoundException {
         paymentOrderService.checkPaymentOrder(order);
         orderRepository.delete(order);

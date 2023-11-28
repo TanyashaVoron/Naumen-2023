@@ -1,6 +1,6 @@
 package com.naumen.anticafe.service.Employee;
 
-import com.naumen.anticafe.DTO.object.EmployeeDTO;
+import com.naumen.anticafe.DTO.receive.employee.EmployeeDTO;
 import com.naumen.anticafe.domain.Employee;
 import com.naumen.anticafe.error.NotFoundException;
 
