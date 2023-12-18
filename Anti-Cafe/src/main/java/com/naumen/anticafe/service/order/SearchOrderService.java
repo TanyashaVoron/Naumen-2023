@@ -1,19 +1,21 @@
 package com.naumen.anticafe.service.order;
 
-import com.naumen.anticafe.domain.Employee;
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;
-import com.naumen.anticafe.error.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface SearchOrderService {
     List<Order> getOrderByGameZoneAndReserveDate(GameZone gameZone, LocalDate localDate);
-    List<Order> getOrderByIdOrGameZoneOrPayment(Long orderId,
-                                                GameZone gameZone,
+
+    Page<Order> getOrderByIdOrGameZoneOrPayment(Long orderId,
+                                                Long gameZoneId,
                                                 Boolean payment,
                                                 LocalDate reserveDate,
-                                                Employee employee,
-                                                boolean isTagged) throws NotFoundException;
+                                                Long employeeId,
+                                                boolean isTagged,
+                                                Pageable pageable);
 }

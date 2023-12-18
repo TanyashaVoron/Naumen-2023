@@ -10,13 +10,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 @Service
 public class CalculationTotalServiceImpl implements CalculationTotalService {
     private final GuestCartService guestCartService;
+
     @Autowired
     public CalculationTotalServiceImpl(GuestCartService guestCartService) {
         this.guestCartService = guestCartService;
     }
+
+    /**
+     * Высчитывает итоговую сумму
+     */
     @Transactional
     public void calculateTotal(Order order) {
         //список всех гостей

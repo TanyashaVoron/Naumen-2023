@@ -22,7 +22,7 @@
         <option th:each="employee:${sendDTO.employeeList()}" th:value="${employee.id()}" th:text="${employee.name()}"></option>
     </select>
     <label for="day">Введите день резерва</label>
-    <input type="date" th:name="date" id="day">
+    <input type="date" th:name="reserveDate" id="day">
     <br/>
     <label for="orderId">Введите номер заказа</label>
     <input type="number" th:name="orderId" id="orderId" placeholder="Номер заказа">
@@ -84,6 +84,51 @@
 <form th:method="POST" th:action="@{/order/create}">
     <input type="submit" value="Создать заказ!"/>
 </form>
+<br/>
+<table>
+    <tr>
+        <td>
+            <a th:text="'Количество страниц: '+${sendDTO.totalPages()}"/>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form th:if="${!sendDTO.first()}" th:method="GET" th:action="@{/search}">
+                <input type="hidden" th:value="${sendDTO.number()}" th:name="page">
+                <input type="hidden" th:value="${sendDTO.payment()}" th:name="payment">
+                <input type="hidden" th:value="${sendDTO.employeeSearch()}" th:name="employeeSearch">
+                <input type="hidden" th:value="${sendDTO.reserveDate()}" th:name="reserveDate">
+                <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
+                <input type="hidden" th:value="${sendDTO.gameZoneId()}" th:name="gameZoneId">
+                <input type="submit" value="Назад">
+            </form>
+            <a th:text="${sendDTO.number()+1}"></a>
+            <form th:if="${!sendDTO.last()}" th:method="GET" th:action="@{/search}">
+                <input type="hidden" th:value="${sendDTO.number()+2}" th:name="page">
+                <input type="hidden" th:value="${sendDTO.payment()}" th:name="payment">
+                <input type="hidden" th:value="${sendDTO.employeeSearch()}" th:name="employeeSearch">
+                <input type="hidden" th:value="${sendDTO.reserveDate()}" th:name="reserveDate">
+                <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
+                <input type="hidden" th:value="${sendDTO.gameZoneId()}" th:name="gameZoneId">
+                <input type="submit" value="Вперед">
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form th:method="GET" th:action="@{/search}">
+                <label th:text="'Перейти на страницу: '" for="goPage"></label>
+                <input type="number" th:name="page" id="goPage">
+                <input type="hidden" th:value="${sendDTO.payment()}" th:name="payment">
+                <input type="hidden" th:value="${sendDTO.employeeSearch()}" th:name="employeeSearch">
+                <input type="hidden" th:value="${sendDTO.reserveDate()}" th:name="reserveDate">
+                <input type="hidden" th:value="${sendDTO.orderId()}" th:name="orderId">
+                <input type="hidden" th:value="${sendDTO.gameZoneId()}" th:name="gameZoneId">
+                <input type="submit" value="Перейти">
+            </form>
+        </td>
+    </tr>
+</table>
 <br/>
 <a th:text="${sendDTO.user()}"></a>
 </body>

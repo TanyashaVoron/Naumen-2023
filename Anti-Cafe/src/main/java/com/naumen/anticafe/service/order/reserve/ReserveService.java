@@ -2,18 +2,22 @@ package com.naumen.anticafe.service.order.reserve;
 
 import com.naumen.anticafe.domain.GameZone;
 import com.naumen.anticafe.domain.Order;
-import com.naumen.anticafe.error.NotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ReserveService {
-    void deleteReserve(Order order) throws NotFoundException;
+    boolean checkReserve(LocalDate date, int freeHour, int hour, GameZone gameZone);
+
+    void deleteReserve(Long orderId);
+
     void setReserve(Order order,
-                    String dayOfMount,
-                    Long gameZoneId,
+                    LocalDate reserveDay,
+                    GameZone gameZone,
                     int freeTime,
-                    int maxHour,
-                    int hour) throws NotFoundException;
+                    int hour);
+
     List<String> getAllDayOfReserve();
-    int[][] getFreeTimesAndMaxHourReserve(GameZone gameZone, String dayMonth) throws NotFoundException;
+
+    int[][] getFreeTimesAndMaxHourReserve(GameZone gameZone, LocalDate dayReserve);
 }

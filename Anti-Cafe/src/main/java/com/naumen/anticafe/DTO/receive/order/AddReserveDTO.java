@@ -4,7 +4,13 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-public record AddReserveDTO(String dayOfMount,
+/**
+ * @param day      день резерва
+ * @param freeTime выбраное время резерва
+ * @param hour     количество часов для резервирования
+ * @param maxHour  максимально возможное hour
+ */
+public record AddReserveDTO(String day,
                             Long gameZoneId,
                             int freeTime,
                             int maxHour,

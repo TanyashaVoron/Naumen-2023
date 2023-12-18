@@ -19,6 +19,11 @@
       "name": "scheduler.order.lifetime.tagged-deletion",
       "type": "java.lang.String",
       "description": "Указывает от 1 до 30 сколько проживет заказ после пометки на удаление."
+    },
+    {
+      "name": "page.page",
+      "type": "java.lang.String",
+      "description": "Количество элементов на странице от 1 до 50."
     }
   ]
 }

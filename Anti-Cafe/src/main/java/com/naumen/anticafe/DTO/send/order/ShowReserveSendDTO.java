@@ -8,7 +8,7 @@ public record ShowReserveSendDTO(String employee,
                                  List<GameZoneReserveDTO> gameZones,
                                  List<String> dayOfReserve,
                                  Long gameZoneId,
-                                 String dayMonth,
+                                 String day,
                                  Optional<int[][]> freeTimes,
                                  Optional<Integer> hourError,
                                  String hourMessageError) {

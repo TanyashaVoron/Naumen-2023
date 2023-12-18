@@ -8,7 +8,7 @@
 <form th:method="GET" th:action="@{/order/{id}(id=${sendDTO.orderId()})}"><button type="submit">Назад</button> </form>
 <form th:method="GET" th:action="@{/order/{id}/reserve(id=${sendDTO.orderId()})}">
     <label>
-        <select th:name="dayMonth" th:onchange="">
+        <select th:name="day" th:onchange="">
             <option th:each="days:${sendDTO.dayOfReserve()}" th:value="${days}" th:text="${days}"></option>
         </select>
         <select th:name="gameZoneId" th:onchange="">
@@ -37,7 +37,7 @@
                style="color:#FF0000" th:text="${sendDTO.hourMessageError()}"></a>
             <form th:method="POST" th:action="@{/order/reserve/Add}">
                 <label th:for="hour"></label>
-                <input th:type="hidden" th:value="${sendDTO.dayMonth()}" th:name="dayOfMount">
+                <input th:type="hidden" th:value="${sendDTO.day()}" th:name="day">
                 <input th:type="hidden" th:value="${sendDTO.gameZoneId()}" th:name="gameZoneId">
                 <input th:type="hidden" th:value="${freeTime[0]}" th:name="freeTime">
                 <input th:type="hidden" th:value="${freeTime[1]}" th:name="maxHour">

@@ -19,12 +19,17 @@ import java.util.Optional;
 
 @Configuration
 public class SecurityConfig {
+    /**
+     * Шифровальщик пароля
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        //Шифровальщик пароля
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Служба сведений о пользователях
+     */
     @Bean
     public UserDetailsService userDetailsService(EmployeeRepository employeeRepository) {
         //поиск сотрудника в бд если его не находит, выдает ошибку
@@ -35,23 +40,33 @@ public class SecurityConfig {
         };
     }
 
+    /**
+     * Цепочка фильтров безопасности
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+
         //контроль доступа пользователям(на текущий момент все открыто)
         httpSecurity.authorizeHttpRequests(request -> request
-                .requestMatchers(
-                        new AntPathRequestMatcher("/login"),
-                        new AntPathRequestMatcher("/h2-console/**")
-                ).permitAll().anyRequest().authenticated()
-        );
-
-        httpSecurity.formLogin(formLogin -> formLogin.loginPage("/login"));
-        httpSecurity.logout(logout -> logout.logoutSuccessUrl("/login"));
-        httpSecurity.csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")));
-        httpSecurity.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/login")
+                        ).permitAll()
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/orderManagement/**")
+                        ).hasAnyRole("GENERAL_MANAGER")
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/employee/**")
+                        ).hasAnyRole("ADMIN")
+                        .anyRequest().authenticated()
+                ).formLogin(formLogin -> formLogin.loginPage("/login"))
+                .logout(logout -> logout.logoutSuccessUrl("/login"))
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         return httpSecurity.build();
     }
 
+    /**
+     * иерархия ролей для цепочки
+     */
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();

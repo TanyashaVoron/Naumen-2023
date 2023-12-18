@@ -1,9 +1,9 @@
 package com.naumen.anticafe.service.Employee;
 
 import com.naumen.anticafe.domain.Employee;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface SearchEmployeeService {
-    List<Employee> getEmployeeUsernameContains(String username);
+    Page<Employee> getEmployeeUsernameContains(String username, Pageable pageable);
 }

@@ -1,7 +1,15 @@
 spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: create-drop
   datasource:
-    generate-unique-name: false
-    name: AntiCafe
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: qwe
+    password: qwe
 reserve:
   service:
     daysToReserve: 7
@@ -11,3 +19,5 @@ scheduler:
   order:
     lifetime:
       tagged-deletion: 2
+page:
+  page: 10

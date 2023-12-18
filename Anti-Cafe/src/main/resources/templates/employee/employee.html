@@ -1,59 +1,92 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Сотрудники</title>
+    <meta charset="UTF-8">
+    <title>Сотрудники</title>
 </head>
 <body>
 <form th:method="GET" th:action="@{/}">
-  <button type="submit">Главная страница</button>
+    <button type="submit">Главная страница</button>
 </form>
 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
 <form th:method="GET" th:action="@{/employee}">
-  <label for="username">Имя пользователя: </label>
-  <input type="text" th:name="username" id="username">
-  <input type="submit" value="Поиск">
+    <label for="username">Имя пользователя: </label>
+    <input type="text" th:name="username" id="username" th:value="${sendDTO.username()}">
+    <input type="submit" value="Поиск">
 </form>
 <a th:href="@{/employee}" th:text="'Сбросить'"></a>
 <a th:href="@{/employee/add}" th:text="'Добавить сотрудника'"></a>
 <table>
-  <tr>
-    <th>ID</th>
-    <th>ФИО</th>
-    <th>Логин</th>
-    <th>Роль</th>
-    <th>Активирован</th>
-    <th>Действия</th>
-  </tr>
-  <tr th:each="employee : ${sendDTO.employees()}">
-    <td>
-      <a th:text="${employee.id()}"/>
-    </td>
-    <td>
-      <a th:text="${employee.name()}"/>
-    </td>
-    <td>
-      <a th:text="${employee.username()}"/>
-    </td>
-    <td>
-        <a  th:text="${employee.role()}"/>
-    </td>
-    <td>
-      <a  th:if="${employee.enabled()}" th:text="АКТИВЕН"/>
-      <a  th:if="${!employee.enabled()}" th:text="ДЕАКТИВИРОВАН"/>
-    </td>
-    <td>
-      <a th:href="@{/employee/edit/{id}(id=${employee.id()})}" th:text="'Изменить'"></a>
-      <form th:if="${employee.enabled()}" th:method="POST" th:action="@{/employee/deactivate}">
-        <input type="hidden" th:value="${employee.id()}" th:name="employeeId">
-        <input type="submit" value="Деактивировать">
-      </form>
-      <form th:if="${!employee.enabled()}" th:method="POST" th:action="@{/employee/activate}">
-        <input type="hidden" th:value="${employee.id()}" th:name="employeeId">
-        <input type="submit" value="Активировать">
-      </form>
-    </td>
-  </tr>
+    <tr>
+        <th>ID</th>
+        <th>ФИО</th>
+        <th>Логин</th>
+        <th>Роль</th>
+        <th>Активирован</th>
+        <th>Действия</th>
+    </tr>
+    <tr th:each="employee : ${sendDTO.employees()}">
+        <td>
+            <a th:text="${employee.id()}"/>
+        </td>
+        <td>
+            <a th:text="${employee.name()}"/>
+        </td>
+        <td>
+            <a th:text="${employee.username()}"/>
+        </td>
+        <td>
+            <a th:text="${employee.role()}"/>
+        </td>
+        <td>
+            <a th:if="${employee.enabled()}" th:text="АКТИВЕН"/>
+            <a th:if="${!employee.enabled()}" th:text="ДЕАКТИВИРОВАН"/>
+        </td>
+        <td>
+            <a th:href="@{/employee/edit/{id}(id=${employee.id()})}" th:text="'Изменить'"></a>
+            <form th:if="${employee.enabled()}" th:method="POST" th:action="@{/employee/deactivate}">
+                <input type="hidden" th:value="${employee.id()}" th:name="employeeId">
+                <input type="submit" value="Деактивировать">
+            </form>
+            <form th:if="${!employee.enabled()}" th:method="POST" th:action="@{/employee/activate}">
+                <input type="hidden" th:value="${employee.id()}" th:name="employeeId">
+                <input type="submit" value="Активировать">
+            </form>
+        </td>
+    </tr>
+</table>
+<br/>
+<table>
+    <tr>
+        <td>
+            <a th:text="'Количество страниц: '+${sendDTO.totalPages()}"/>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form th:if="${!sendDTO.first()}" th:method="GET" th:action="@{/employee}">
+                <input type="hidden" th:value="${sendDTO.number()}" th:name="page">
+                <input type="hidden" th:value="${sendDTO.username()}" th:name="username">
+                <input type="submit" value="Назад">
+            </form>
+            <a th:text="${sendDTO.number()+1}"></a>
+            <form th:if="${!sendDTO.last()}" th:method="GET" th:action="@{/employee}">
+                <input type="hidden" th:value="${sendDTO.number()+2}" th:name="page">
+                <input type="hidden" th:value="${sendDTO.username()}" th:name="username">
+                <input type="submit" value="Вперед">
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form th:method="GET" th:action="@{/employee}">
+                <label th:text="'Перейти на страницу: '" for="goPage"></label>
+                <input type="number" th:name="page" id="goPage">
+                <input type="hidden" th:value="${sendDTO.username()}" th:name="username">
+                <input type="submit" value="Перейти">
+            </form>
+        </td>
+    </tr>
 </table>
 <br/>
 <a th:text="${sendDTO.nameEmployee()}"></a>

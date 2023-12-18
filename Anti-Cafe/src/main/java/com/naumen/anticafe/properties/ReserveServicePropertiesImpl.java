@@ -3,7 +3,6 @@ package com.naumen.anticafe.properties;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -23,15 +22,22 @@ public class ReserveServicePropertiesImpl implements ReserveServiceProperties {
     @Max(value = 24, message = "От 1 до 24")
     @Min(value = 1, message = "От 1 до 24")
     private int closingHour;
+
+    @Override
     public int getDaysToReserve() {
         return daysToReserve;
     }
+
+    @Override
     public int getOpeningHour() {
         return openingHour;
     }
+
+    @Override
     public int getClosingHour() {
         return closingHour;
     }
+
     @AssertTrue(message = "Время закрытия должно быть больше времени открытия")
     public boolean isValidOpeningClosingHours() {
         return openingHour < closingHour;

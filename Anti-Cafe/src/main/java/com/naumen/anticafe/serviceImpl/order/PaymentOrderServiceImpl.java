@@ -1,11 +1,12 @@
 package com.naumen.anticafe.serviceImpl.order;
 
 import com.naumen.anticafe.domain.Order;
-import com.naumen.anticafe.error.NotFoundException;
+import com.naumen.anticafe.exception.NotFoundException;
 import com.naumen.anticafe.service.order.CalculationTotalService;
 import com.naumen.anticafe.service.order.PaymentOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaymentOrderServiceImpl implements PaymentOrderService {
@@ -17,16 +18,12 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         this.calculateTotalService = calculateTotalService;
     }
 
+    /**
+     * посчитывает итоговую сумму
+     */
     @Override
-    public void checkPaymentOrder(Order order) throws NotFoundException {
-        if (order.getPayment()) throw new NotFoundException("Заказ уже оплачен");
-    }
-
-    @Override
-    public void payment(Order order) throws NotFoundException {
-        //проверяет оплату заказа, если заказ оплачен пробрасывает ошибку
-        checkPaymentOrder(order);
-        //посчитывает итоговую сумму
+    @Transactional
+    public void payment(Order order){
         calculateTotalService.calculateTotal(order);
         //имитирует оплату
         order.setPayment(true);

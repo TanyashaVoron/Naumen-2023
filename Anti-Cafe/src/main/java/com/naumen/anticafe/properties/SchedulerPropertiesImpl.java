@@ -13,6 +13,8 @@ public class SchedulerPropertiesImpl implements SchedulerProperties {
     @Max(value = 30, message = "От 1 до 30")
     @Min(value = 1, message = "От 1 до 30")
     private int taggedDeletion;
+
+    @Override
     public int getTaggedDeletion() {
         return taggedDeletion;
     }

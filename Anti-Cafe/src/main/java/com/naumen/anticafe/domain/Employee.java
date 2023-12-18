@@ -1,13 +1,15 @@
 package com.naumen.anticafe.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -25,10 +27,12 @@ public class Employee implements UserDetails {
     @ManyToOne
     private Role role;
     private boolean enabled;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(role);
     }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

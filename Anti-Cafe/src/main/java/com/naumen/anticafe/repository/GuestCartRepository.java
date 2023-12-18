@@ -8,5 +8,4 @@ import java.util.List;
 
 public interface GuestCartRepository extends CrudRepository<GuestCart, Long> {
     List<GuestCart> findAllByGuest(Guest guest);
-    Long countByGuest(Guest guest);
 }

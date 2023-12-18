@@ -1,20 +1,25 @@
 package com.naumen.anticafe.controller;
 
-import com.naumen.anticafe.DTO.receive.employee.EmployeeDTO;
 import com.naumen.anticafe.DTO.receive.employee.*;
-import com.naumen.anticafe.DTO.send.employee.EmployeeSendDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowAddSendDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowEditSendDTO;
 import com.naumen.anticafe.DTO.send.employee.ShowSendDTO;
+import com.naumen.anticafe.converter.ConverterEmployee;
 import com.naumen.anticafe.domain.Employee;
-import com.naumen.anticafe.error.NotFoundException;
+import com.naumen.anticafe.exception.NotFoundException;
+import com.naumen.anticafe.properties.PageProperties;
 import com.naumen.anticafe.service.Employee.EmployeeService;
+import com.naumen.anticafe.service.Employee.EnabledEmployeeService;
 import com.naumen.anticafe.service.Employee.RegistrationEmployeeService;
 import com.naumen.anticafe.service.Employee.SearchEmployeeService;
 import com.naumen.anticafe.service.Role.RoleService;
 import com.naumen.anticafe.serviceImpl.Employee.RegistrationEmployeeServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +29,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/employee")
 public class EmployeeController {
@@ -35,79 +36,74 @@ public class EmployeeController {
     private final RoleService roleService;
     private final SearchEmployeeService searchEmployeeService;
     private final RegistrationEmployeeService registrationEmployeeService;
+    private final PageProperties pageProperties;
+    private final EnabledEmployeeService enabledEmployeeService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, RoleService roleService, SearchEmployeeService searchEmployeeService, RegistrationEmployeeServiceImpl registrationEmployeeService) {
+    public EmployeeController(EmployeeService employeeService,
+                              RoleService roleService,
+                              SearchEmployeeService searchEmployeeService,
+                              RegistrationEmployeeServiceImpl registrationEmployeeService,
+                              PageProperties pageProperties,
+                              EnabledEmployeeService enabledEmployeeService) {
         this.employeeService = employeeService;
         this.roleService = roleService;
         this.searchEmployeeService = searchEmployeeService;
         this.registrationEmployeeService = registrationEmployeeService;
+        this.pageProperties = pageProperties;
+        this.enabledEmployeeService = enabledEmployeeService;
     }
 
+    /**
+     * отображет форму добавления сотрудников, где указываеться ошибки добавляения
+     */
     @GetMapping("/add")
     @Transactional(readOnly = true)
     public String showAddEmployee(@ModelAttribute ShowAddDTO dto,
                                   @AuthenticationPrincipal(expression = "name") String employee, Model model) {
-        ShowAddSendDTO sendDTO = new ShowAddSendDTO(
-                Optional.ofNullable(dto.nameError()),
-                Optional.ofNullable(dto.usernameError()),
-                Optional.ofNullable(dto.usernameDuplicateError()),
-                Optional.ofNullable(dto.passwordError()),
-                dto.name()==null?"":dto.name(),
-                dto.username()==null?"":dto.username(),
-                dto.roleId()==null?1:dto.roleId(),
-                employee,
-                roleService.getAllRole()
-        );
+        ShowAddSendDTO sendDTO = ConverterEmployee.convertToShowAddSendDTO(dto, employee, roleService.getAllRole());
         model.addAttribute("sendDTO", sendDTO);
         return "employee/addEmployee";
     }
+
+    /**
+     * отображает всех сотрудников либо тех у кого есть в имени фрагмент из поиска
+     */
     @GetMapping
     @Transactional(readOnly = true)
     public String showEmployee(@ModelAttribute ShowDTO dto,
                                @AuthenticationPrincipal(expression = "name") String employee,
                                Model model) {
-        List<EmployeeSendDTO> employeeSendDTOList = new ArrayList<>();
-        if (dto.username()!= null && !dto.username().isEmpty()) {
-            //если не пустой, то выискивает сотрудников с фрагментом
-            for (Employee e : searchEmployeeService.getEmployeeUsernameContains(dto.username())) {
-                EmployeeSendDTO employeeSendDTO = new EmployeeSendDTO(
-                        e.getId(),
-                        e.getName(),
-                        e.getUsername(),
-                        e.getRole().getRole(),
-                        e.isEnabled()
-                );
-                employeeSendDTOList.add(employeeSendDTO);
-            }
+        //Создает страницы сотрудников
+        Page<Employee> employeeSendDTOList;
+        if (dto.username() != null && !dto.username().isEmpty()) {
+            //в случае если указан параметра поиска
+            Pageable pageable = PageRequest.of(dto.page() - 1, pageProperties.getPageSize());
+            employeeSendDTOList = searchEmployeeService.getEmployeeUsernameContains(dto.username(), pageable);
         } else {
-            //если пустой сначала выискивает активные а после добавляет не активные
-            for (Employee e : employeeService.getEmployeeList(true)) {
-                EmployeeSendDTO employeeSendDTO = new EmployeeSendDTO(
-                        e.getId(),
-                        e.getName(),
-                        e.getUsername(),
-                        e.getRole().getRole(),
-                        e.isEnabled()
-                );
-                employeeSendDTOList.add(employeeSendDTO);
-            }
-            for (Employee e : employeeService.getEmployeeList(false)) {
-                EmployeeSendDTO employeeSendDTO = new EmployeeSendDTO(
-                        e.getId(),
-                        e.getName(),
-                        e.getUsername(),
-                        e.getRole().getRole(),
-                        e.isEnabled()
-                );
-                employeeSendDTOList.add(employeeSendDTO);
-            }
+            //если поиск не указан то возвращает всех сначала отсортированых по активности потом по ИД вначале идут
+            // активные
+            Pageable pageable = PageRequest.of(dto.page() - 1,
+                    pageProperties.getPageSize(),
+                    Sort
+                            .by("enabled")
+                            .descending()
+                            .and(Sort.by("id"))
+            );
+            employeeSendDTOList = employeeService.getEmployeeList(pageable);
         }
-        ShowSendDTO sendDTO = new ShowSendDTO(employee,employeeSendDTOList);
+        ShowSendDTO sendDTO = ConverterEmployee
+                .convertToShowSendDTO(employee,
+                        employeeSendDTOList,
+                        dto.username()
+                );
         model.addAttribute("sendDTO", sendDTO);
         return "employee/employee";
     }
 
+    /**
+     * Отображает и заполняет форму для реодактирования сотрудника, а так же показывает ошибки в форме
+     */
     @GetMapping("/edit/{id}")
     @Transactional(readOnly = true)
     public String showEdit(@PathVariable("id") Long employeeId,
@@ -115,58 +111,58 @@ public class EmployeeController {
                            @AuthenticationPrincipal(expression = "name") String employee,
                            Model model) throws NotFoundException {
         Employee employeeEdit = employeeService.getEmployee(employeeId);
-        ShowEditSendDTO sendDTO = new ShowEditSendDTO(
-                Optional.ofNullable(dto.nameError()),
-                Optional.ofNullable(dto.username()),
-                Optional.ofNullable(dto.usernameDuplicateError()),
-                Optional.ofNullable(dto.passwordError()),
-                employee,
-                employeeEdit.getId(),
-                employeeEdit.getUsername(),
-                employeeEdit.getRole().getId(),
-                employeeEdit.getName(),
-                roleService.getAllRole()
-        );
+        ShowEditSendDTO sendDTO = ConverterEmployee
+                .convertToShowEditSendDTO(dto,
+                        employee,
+                        employeeEdit,
+                        roleService.getAllRole()
+                );
         model.addAttribute("sendDTO", sendDTO);
         return "employee/editEmployee";
     }
 
+    /**
+     * Добавляет сотрудника в бд если есть ошбки выводит их в форму
+     */
     @PostMapping("/add")
     @Transactional
     public String addEmployee(@Valid @ModelAttribute EmployeeDTO dto,
                               BindingResult bindingResult,
                               RedirectAttributes redirectAttributes) throws NotFoundException {
-        //если есть ошибки в валидации то переадресует все ошибки в GET
-        Optional<Employee> employee = employeeService.searchEmployeeDuplicate(dto.username());
-        if (employee.isPresent())
-            bindingResult.addError(new FieldError("addDTO", "usernameDuplicate", "Имя пользователя уже занято"));
+        //проверяет есть ли такие же имена
+        if (registrationEmployeeService.searchEmployeeDuplicate(dto.username()))
+            //если есть добавляет в BindingResult ошибку об этом
+            bindingResult.addError(new FieldError("addDTO",
+                    "usernameDuplicate",
+                    "Имя пользователя уже занято")
+            );
+        //проверяет ошибку валидации
         if (bindingResult.hasErrors()) {
+            //если нашел то добавляет все ошибки в переадресацию
             for (FieldError fe : bindingResult.getFieldErrors()) {
                 redirectAttributes.addAttribute(fe.getField() + "Error", fe.getDefaultMessage());
             }
+            //добавляет в переадресацию так же и поля имени и логина для автозаполнения в форме
             redirectAttributes.addAttribute("name", dto.name());
             redirectAttributes.addAttribute("username", dto.username());
             return "redirect:/employee/add";
         }
+        //регестрирует сотрудника
         registrationEmployeeService.registrationEmployee(dto);
         return "redirect:/employee";
     }
 
     @PostMapping("/deactivate")
     @Transactional
-    public String deactivateEmployee(@ModelAttribute DeactivateDTO dto) throws NotFoundException {
-        Employee employee = employeeService.getEmployee(dto.employeeId());
-        employee.setEnabled(false);
-        employeeService.saveEmployee(employee);
+    public String deactivateEmployee(@ModelAttribute DeactivateDTO dto) {
+        enabledEmployeeService.setEnable(dto.employeeId(), false);
         return "redirect:/employee";
     }
 
     @PostMapping("/activate")
     @Transactional
-    public String activateEmployee(@ModelAttribute ActivateDTO DTO, RedirectAttributes redirectAttributes) throws NotFoundException {
-        Employee employee = employeeService.getEmployee(DTO.employeeId());
-        employee.setEnabled(true);
-        employeeService.saveEmployee(employee);
+    public String activateEmployee(@ModelAttribute ActivateDTO dto) {
+        enabledEmployeeService.setEnable(dto.employeeId(), true);
         return "redirect:/employee";
     }
 
@@ -177,20 +173,21 @@ public class EmployeeController {
                                BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) throws NotFoundException {
         Employee employee = employeeService.getEmployee(employeeId);
-        Optional<Employee> optionalEmployee = employeeService.searchEmployeeDuplicate(dto.username());
-        if (optionalEmployee.isPresent())
-            if(!optionalEmployee.get().getName().equals(employee.getName()))
-                bindingResult.addError(new FieldError("addDTO", "usernameDuplicate", "Имя пользователя уже занято"));
+        if (registrationEmployeeService.searchEmployeeDuplicate(dto.username()))
+            if (!dto.username().equals(employee.getName()))
+                bindingResult.addError(new FieldError("addDTO",
+                        "usernameDuplicate",
+                        "Имя пользователя уже занято")
+                );
         if (bindingResult.hasErrors()) {
             for (FieldError fe : bindingResult.getFieldErrors()) {
                 redirectAttributes.addAttribute(fe.getField() + "Error", fe.getDefaultMessage());
             }
             redirectAttributes.addAttribute("name", dto.name());
             redirectAttributes.addAttribute("username", dto.username());
-            return "redirect:/employee/edit/"+employeeId;
+            return "redirect:/employee/edit/" + employeeId;
         }
-        //находит и обновляет сотрудника
-/*        registrationEmployeeService.updateEmployee(DTO, employee);*/
+        registrationEmployeeService.updateEmployee(dto, employee);
         return "redirect:/";
     }
 }
