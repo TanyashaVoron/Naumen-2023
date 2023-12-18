@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 public record ShowAddSendDTO(Optional<String> nameError,
-        Optional<String> usernameError,
-        Optional<String> usernameDuplicateError,
-        Optional<String> passwordError,
-        String name,
-        String username,
-        Integer roleId,
-        String employeeName,
-        List<Role>roles) {
+                             Optional<String> usernameError,
+                             Optional<String> usernameDuplicateError,
+                             Optional<String> passwordError,
+                             String name,
+                             String username,
+                             Integer roleId,
+                             String employeeName,
+                             List<Role> roles) {
 }

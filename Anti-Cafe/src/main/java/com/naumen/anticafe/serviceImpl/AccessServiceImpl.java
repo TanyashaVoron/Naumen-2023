@@ -18,9 +18,7 @@ public class AccessServiceImpl implements AccessService {
         //проверяет являеться ли сотрудник простым официнтом
         if (role.getRole().equals("ROLE_MANAGER")) {
             //проверяет владельца и текущего сотрудник
-            if (!order.getManager().equals(employeeNow)) {
-                return false;
-            }
+            return order.getManager().equals(employeeNow);
         }
         return true;
     }

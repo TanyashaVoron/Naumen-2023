@@ -14,5 +14,5 @@ public record ShowEditSendDTO(Optional<String> nameError,
                               String username,
                               Integer roleId,
                               String employeeName,
-                              List<Role>roles) {
+                              List<Role> roles) {
 }

@@ -28,7 +28,7 @@ public class Scheduler {
     @Scheduled(cron = "0 0 3 * * ?")
     public void OrderMark() {
         LocalDate localDate = LocalDate.now();
-        localDate.minusDays(schedulerProperties.getTaggedDeletion());
+        localDate = localDate.minusDays(schedulerProperties.getTaggedDeletion());
         for (Order o : markDeletionOrderService.getOrderMarkDeletion(localDate))
             orderService.deleteOrderCascade(o.getId());
     }

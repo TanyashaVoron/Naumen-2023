@@ -30,7 +30,7 @@ public class ConverterOrderManagementController {
             String reserveTime;
             String endReserve;
             if (o.getGameZone() == null) {
-                gameZoneName = Optional.ofNullable(null);
+                gameZoneName = Optional.empty();
                 reserveDate = null;
                 reserveTime = null;
                 endReserve = null;

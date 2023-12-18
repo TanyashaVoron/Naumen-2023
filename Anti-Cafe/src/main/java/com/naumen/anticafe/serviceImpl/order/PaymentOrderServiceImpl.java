@@ -1,7 +1,6 @@
 package com.naumen.anticafe.serviceImpl.order;
 
 import com.naumen.anticafe.domain.Order;
-import com.naumen.anticafe.exception.NotFoundException;
 import com.naumen.anticafe.service.order.CalculationTotalService;
 import com.naumen.anticafe.service.order.PaymentOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
      */
     @Override
     @Transactional
-    public void payment(Order order){
+    public void payment(Order order) {
         calculateTotalService.calculateTotal(order);
         //имитирует оплату
         order.setPayment(true);

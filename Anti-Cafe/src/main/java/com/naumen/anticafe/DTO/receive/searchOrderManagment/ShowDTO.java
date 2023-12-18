@@ -1,6 +1,7 @@
 package com.naumen.anticafe.DTO.receive.searchOrderManagment;
 
 import java.time.LocalDate;
+
 /**
  * @param employeeId поиск по сотруднику
  */
@@ -11,6 +12,6 @@ public record ShowDTO(Long orderId,
                       Long employeeId,
                       Integer page) {
     public ShowDTO {
-        if(page==null||page<1) page=1;
+        if (page == null || page < 1) page = 1;
     }
 }
