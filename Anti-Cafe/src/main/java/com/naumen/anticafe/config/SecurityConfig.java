@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class SecurityConfig {
             throw new UsernameNotFoundException("Employee '" + username + "' not found");
         };
     }
+
 
     /**
      * Цепочка фильтров безопасности

@@ -17,51 +17,66 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.30</version>
+            <scope>provided</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
+            <version>3.2.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.retry/spring-retry -->
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
-            <version>2.0.3</version>
+            <version>2.0.5</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>3.2.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>3.2.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+            <version>3.2.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <version>3.2.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.2.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.thymeleaf.extras/thymeleaf-extras-springsecurity6 -->
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
+            <version>3.1.2.RELEASE</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
@@ -69,38 +84,12 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface EmployeeService {
 
-    Page<Employee> getEmployeeList(Pageable pageable);
+    Page<Employee> getEmployeePage(Pageable pageable);
 
     List<Employee> getEmployeeList(boolean enabled);
 

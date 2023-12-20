@@ -1,4 +1,3 @@
-/*
 package com.naumen.anticafe.serviceImpl.Employee;
 
 import com.naumen.anticafe.domain.Employee;
@@ -7,115 +6,75 @@ import com.naumen.anticafe.exception.NotFoundException;
 import com.naumen.anticafe.repository.EmployeeRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeServiceImplTest {
-    @Mock
-    private EmployeeRepository employeeRepository;
     @InjectMocks
     private EmployeeServiceImpl employeeService;
-    @BeforeEach
-    void init(){
+    @Mock
+    private EmployeeRepository employeeRepository;
+    @Test
+    void getEmployeeList() {
+        Role role = new Role(1,"Role");
+        Employee e1 = new Employee(1L,"qwe","qwe","qwe",role,true);
+        Employee e2 = new Employee(2L,"qwe2","qwe2","qwe2",role,true);
+        Pageable pageable = PageRequest.of(2,2);
+        Page<Employee> pageE1 = new PageImpl<>(List.of(e1,e2));
+        Page<Employee> pageE2 = new PageImpl<>(List.of(e1,e2));
+        Mockito.when(employeeRepository.findAll(pageable)).thenReturn(pageE1);
+        Assertions.assertIterableEquals(employeeService.getEmployeePage(pageable),pageE2);
+        Mockito.verify(employeeRepository,Mockito.times(1)).findAll(pageable);
+    }
 
+    @Test
+    void testGetEmployeeList_false() {
+        Role role = new Role(1,"Role");
+        Employee e1 = new Employee(1L,"qwe","qwe","qwe",role,false);
+        List<Employee> employeeList1 = new ArrayList<>(List.of(e1));
+        List<Employee> employeeList2 = new ArrayList<>(List.of(e1));
+        Mockito.when(employeeRepository.findAllByEnabled(false)).thenReturn(employeeList1);
+        Assertions.assertIterableEquals(employeeService.getEmployeeList(false),employeeList2);
+        Mockito.verify(employeeRepository,Mockito.times(1)).findAllByEnabled(false);
     }
     @Test
-    void searchEmployeeDuplicate_Search() {
-        String name1 = "employeeFound1";
-        String name2 = "employeeFound2";
-        Employee employee1 = new Employee(1l,"name","qwe",name1,new Role(),false);
-        Employee employee2 = new Employee(1l,"name","qwe",name2,new Role(),false);
-        Mockito.when(employeeRepository.findByUsername(name1)).thenReturn(Optional.of(employee1));
-        Mockito.when(employeeRepository.findByUsername(name2)).thenReturn(Optional.of(employee2));
-
-
+    void testGetEmployeeList_true() {
+        Role role = new Role(1,"Role");
+        Employee e1 = new Employee(1L,"qwe","qwe","qwe",role,true);
+        List<Employee> employeeList1 = new ArrayList<>(List.of(e1));
+        List<Employee> employeeList2 = new ArrayList<>(List.of(e1));
+        Mockito.when(employeeRepository.findAllByEnabled(true)).thenReturn(employeeList1);
+        Assertions.assertIterableEquals(employeeService.getEmployeeList(true),employeeList2);
+        Mockito.verify(employeeRepository,Mockito.times(1)).findAllByEnabled(true);
     }
 
-    @Test
-    void searchEmployeeDuplicate_NotFound() {
-        String name1 = "employeeNotFound1";
-        String name2 = "employeeNotFound2";
-        Mockito.when(employeeRepository.findByUsername(name1)).thenReturn(Optional.empty());
-        Mockito.when(employeeRepository.findByUsername(name2)).thenReturn(Optional.empty());
-
-    }
     @SneakyThrows
     @Test
-    void searchEmployee_search() {
-        String name1 = "employeeFound1";
-        String name2 = "employeeFound2";
-        Employee employee1 = new Employee(1l,"name","qwe",name1,new Role(),false);
-        Employee employee2 = new Employee(1l,"name","qwe",name2,new Role(),false);
-        Mockito.when(employeeRepository.findByUsername(name1)).thenReturn(Optional.of(employee1));
-        Mockito.when(employeeRepository.findByUsername(name2)).thenReturn(Optional.of(employee2));
-        Assertions.assertEquals(employeeService.searchEmployee(name1),employee1);
-        Assertions.assertEquals(employeeService.searchEmployee(name2),employee2);
+    void getEmployee_found_andException() {
+        Role role = new Role(1,"Role");
+        Employee e1 = new Employee(1L,"qwe","qwe","qwe",role,true);
+        Long id = 1L;
+        Long exceptionId = 2L;
+        //найден
+        Mockito.when(employeeRepository.findById(id)).thenReturn(Optional.of(e1));
+        Assertions.assertEquals(employeeService.getEmployee(id),e1);
+        Mockito.verify(employeeRepository,Mockito.times(1)).findById(id);
+        //ненайден
+        Mockito.when(employeeRepository.findById(exceptionId)).thenReturn(Optional.empty());
+        Assertions.assertThrows(NotFoundException.class,()->employeeService.getEmployee(exceptionId));
+        Mockito.verify(employeeRepository,Mockito.times(1)).findById(exceptionId);
     }
-    @SneakyThrows
-    @Test
-    void searchEmployee_NotFound() {
-        String name1 = "employeeNotFound1";
-        String name2 = "employeeNotFound2";
-        Mockito.when(employeeRepository.findByUsername(name1)).thenReturn(Optional.empty());
-        Mockito.when(employeeRepository.findByUsername(name2)).thenReturn(Optional.empty());
-
-        Assertions.assertThrows(NotFoundException.class,()->{employeeService.searchEmployee(name1);});
-        Assertions.assertThrows(NotFoundException.class,()->{employeeService.searchEmployee(name2);});
-    }
-    @Test
-    void getEmployeeList_true() {
-        Employee employee1 = new Employee(1l,"name","qwe","name1",new Role(),true);
-        Employee employee2 = new Employee(1l,"name","qwe","name2",new Role(),true);
-        Employee employee3 = new Employee(1l,"name","qwe","name3",new Role(),true);
-        Employee employee4 = new Employee(1l,"name","qwe","name4",new Role(),true);
-        Mockito.when(employeeRepository.findAllByEnabled(true)).thenReturn(List.of(employee1,employee2,employee3,employee4));
-        Assertions.assertEquals(employeeService.getEmployeeList(true),List.of(employee1,employee2,employee3,employee4));
-    }
-    @Test
-    void getEmployeeList_false() {
-        Employee employee1 = new Employee(1l,"name","qwe","name1",new Role(),false);
-        Employee employee2 = new Employee(1l,"name","qwe","name2",new Role(),false);
-        Employee employee3 = new Employee(1l,"name","qwe","name3",new Role(),false);
-        Employee employee4 = new Employee(1l,"name","qwe","name4",new Role(),false);
-        Mockito.when(employeeRepository.findAllByEnabled(false)).thenReturn(List.of(employee1,employee2,employee3,employee4));
-        Assertions.assertEquals(employeeService.getEmployeeList(false),List.of(employee1,employee2,employee3,employee4));
-    }
-
-    @Test
-    void saveEmployee() {
-        Employee employee1 = new Employee(1l,"name","qwe","name1",new Role(),false);
-        employeeService.saveEmployee(employee1);
-        Mockito.verify(employeeRepository).save(employee1);
-    }
-    @SneakyThrows
-    @Test
-    void getEmployee_search() {
-        Long id1 = 1l;
-        Long id2 = 2l;
-        Employee employee1 = new Employee(1l,"name","qwe","employeeFound1",new Role(),false);
-        Employee employee2 = new Employee(2l,"name","qwe","employeeFound2",new Role(),false);
-        Mockito.when(employeeRepository.findById(id1)).thenReturn(Optional.of(employee1));
-        Mockito.when(employeeRepository.findById(id2)).thenReturn(Optional.of(employee2));
-        Assertions.assertEquals(employeeService.getEmployee(id1),employee1);
-        Assertions.assertEquals(employeeService.getEmployee(id2),employee2);
-    }
-    @SneakyThrows
-    @Test
-    void getEmployee_NotFound() {
-        Long id1 = 1l;
-        Long id2 = 2l;
-        Mockito.when(employeeRepository.findById(id1)).thenReturn(Optional.empty());
-        Mockito.when(employeeRepository.findById(id2)).thenReturn(Optional.empty());
-        Assertions.assertThrows(NotFoundException.class,()->{employeeService.getEmployee(id1);});
-        Assertions.assertThrows(NotFoundException.class,()->{employeeService.getEmployee(id2);});
-    }
-}*/
+}

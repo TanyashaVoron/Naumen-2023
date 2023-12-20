@@ -90,7 +90,7 @@ public class EmployeeController {
                             .descending()
                             .and(Sort.by("id"))
             );
-            employeeSendDTOList = employeeService.getEmployeeList(pageable);
+            employeeSendDTOList = employeeService.getEmployeePage(pageable);
         }
         ShowSendDTO sendDTO = ConverterEmployee
                 .convertToShowSendDTO(employee,

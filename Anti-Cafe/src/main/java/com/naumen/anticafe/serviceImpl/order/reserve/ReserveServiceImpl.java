@@ -44,10 +44,12 @@ public class ReserveServiceImpl implements ReserveService {
         List<String> dayOfReserveList = new ArrayList<>();
         //создаем переменную текущего дня для заполнения
         LocalDate date = LocalDate.now();
+        //формат даты
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yy");
         //вносим в лист все последующее 7 дней
         for (int i = 0; i < reserveServiceProperties.getDaysToReserve(); i++) {
             LocalDate dateNow = date.plusDays(i);
-            dayOfReserveList.add(dateNow.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            dayOfReserveList.add(dateNow.format(dtf));
         }
         return dayOfReserveList;
     }

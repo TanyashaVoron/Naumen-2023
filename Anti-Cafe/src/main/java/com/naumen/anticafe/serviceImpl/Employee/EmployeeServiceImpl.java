@@ -21,19 +21,28 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
-    /** находит всех сотрудников и разделяет на страницы*/
+
+    /**
+     * находит всех сотрудников и разделяет на страницы
+     */
     @Override
     @Transactional(readOnly = true)
-    public Page<Employee> getEmployeeList(Pageable pageable) {
+    public Page<Employee> getEmployeePage(Pageable pageable) {
         return employeeRepository.findAll(pageable);
     }
-    /** передает список сотрудников с указанным полем Enabled*/
+
+    /**
+     * передает список сотрудников с указанным полем Enabled
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Employee> getEmployeeList(boolean enabled) {
         return employeeRepository.findAllByEnabled(enabled);
     }
-    /**ищет сотрудника оп Id */
+
+    /**
+     * ищет сотрудника оп Id
+     */
     @Override
     @Transactional(readOnly = true)
     public Employee getEmployee(Long employeeId) throws NotFoundException {

@@ -24,5 +24,4 @@ public record ShowSendDTO(List<EmployeeDTO> employeeList,
                           Boolean payment,
                           LocalDate reserveDate,
                           Long employeeSearch) {
-
 }
