@@ -2,10 +2,13 @@ package com.naumen.anticafe.config;
 
 import com.naumen.anticafe.domain.Employee;
 import com.naumen.anticafe.repository.EmployeeRepository;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -41,14 +44,12 @@ public class SecurityConfig {
         };
     }
 
-
     /**
      * Цепочка фильтров безопасности
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-
-        //контроль доступа пользователям(на текущий момент все открыто)
+        //контроль доступа пользователям
         httpSecurity.authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 new AntPathRequestMatcher("/login")
